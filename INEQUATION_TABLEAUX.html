@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur Ultime : Tableaux de Signe</title>
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']], 
+                displayMath: [['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            padding: 20px;
+            color: #343a40;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1100px; margin: auto; }
+
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 10px; display: inline-block; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .controls { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+        button {
+            padding: 12px 24px; border: none; border-radius: 50px;
+            cursor: pointer; font-weight: bold; color: white; font-size: 1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        button:active { transform: scale(0.98); }
+        
+        #generate-btn { background-color: var(--success-color); }
+        #show-solution-btn { background-color: var(--primary-color); }
+        #print-btn { background-color: var(--secondary-color); }
+
+        #exercise-output {
+            font-size: 1.3em; padding: 20px;
+            border: 2px dashed var(--primary-color);
+            background-color: #f0f8ff;
+            border-radius: 10px; min-height: 60px; margin-bottom: 20px; text-align: center;
+        }
+
+        #solution-output {
+            margin-top: 20px; border-left: 5px solid var(--success-color);
+            padding: 20px; background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px; display: none; overflow-x: auto;
+        }
+
+        .math-container {
+            margin: 15px 0; padding: 10px; background-color: #f8f9fa;
+            border-radius: 5px; overflow-x: auto; text-align: center; 
+            border: 1px solid #e9ecef;
+        }
+
+        .reminder {
+            background-color: #fff3cd; border-left: 5px solid #ffc107;
+            padding: 15px; border-radius: 4px; margin-top: 20px;
+        }
+        
+        select { padding: 12px; border-radius: 5px; border: 1px solid #ced4da; font-size: 1em; }
+
+        /* TABLEAU DE SIGNE */
+        .sign-table {
+            border-collapse: collapse; width: 100%; font-size: 1.1em;
+            min-width: 600px; margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .sign-table th, .sign-table td {
+            border: 1px solid #dee2e6; padding: 10px 5px; text-align: center;
+            min-width: 45px; 
+        }
+        .sign-table th:first-child, .sign-table td:first-child {
+            text-align: left; width: 20%; padding-left: 15px; font-weight: bold; background-color: #e9ecef;
+        }
+        .sign-table tr:last-child { background-color: #d1ecf1; font-weight: bold; }
+        .sign-table .root-row th { background-color: #f8f9fa; }
+        
+        .sign-table .double-bar {
+            color: var(--danger-color); font-weight: 900; font-size: 1.3em; letter-spacing: -3px;
+        }
+        .sign-table .simple-bar { color: #adb5bd; font-weight: lighter; }
+        .interval-header { width: 10%; }
+
+        /* MEDIA PRINT */
+        @media print {
+            body { background-color: white; padding: 0; font-size: 12pt; }
+            .container { max-width: 100%; margin: 0; width: 100%; }
+            header h1 { font-size: 1.5em; border-bottom: 2px solid #000; }
+            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn { display: none !important; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            #exercise-output { border: 2px solid #000; background-color: white; color: black; margin-bottom: 30px; }
+            #solution-output { display: block !important; border: none; border-top: 1px solid #ccc; padding-left: 0; margin-top: 20px; }
+            .sign-table { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
+            .sign-table th, .sign-table td { border: 1px solid #000; }
+            .sign-table tr:last-child { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Générateur Ultime : Tableaux de Signe</h1>
+            <p>Du niveau débutant.e au niveau Expert.e</p>
+        </header>
+
+        <div class="card">
+            <div class="controls">
+                <label for="complexity"><strong>Niveau :</strong></label>
+                <select id="complexity">
+                    <option value="1">1. Expression simple (ax+b)</option>
+                    <option value="2">2. Produit (2 facteurs)</option>
+                    <option value="3">3. Quotient (Valeur interdite)</option>
+                    <option value="4">4. Produit complexe (3 facteurs)</option>
+                    <option value="5">5. Factorisation (A² - B²)</option>
+                    <option value="6">6. Expert (Quotients complexes & Factorisation)</option>
+                </select>
+                <button id="generate-btn">🔄 Nouveau</button>
+                <button id="show-solution-btn">💡 Solution</button>
+                <button id="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+            </div>
+
+            <div id="exercise-output">
+                <p>Cliquez sur "Nouveau" pour commencer.</p>
+            </div>
+            
+            <div id="solution-output"></div>
+        </div>
+
+        <div class="reminder">
+            <h3>⚠️ Méthode & Rappels</h3>
+            <ul>
+                <li><strong>Quotient :</strong> Les facteurs du dénominateur créent des valeurs interdites (Double barre ||).</li>
+                <li><strong>Factorisation :</strong> Si vous voyez un carré moins un nombre, pensez à \( A^2 - B^2 = (A-B)(A+B) \).</li>
+                <li><strong>Signes :</strong> Résoudre \( \text{Facteur} \geq 0 \) pour trouver la zone des \(+\).</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateBtn = document.getElementById('generate-btn');
+            const showSolutionBtn = document.getElementById('show-solution-btn');
+            const complexitySelect = document.getElementById('complexity');
+            const exerciseOutput = document.getElementById('exercise-output');
+            const solutionOutput = document.getElementById('solution-output');
+
+            let currentExercise = null;
+            const tolerance = 0.0001; 
+
+            function getRandomInt(min, max) {
+                let num;
+                do { num = Math.floor(Math.random() * (max - min + 1)) + min; } while (num === 0);
+                return num;
+            }
+
+            function simplifyFraction(numerator, denominator) {
+                if (typeof denominator === 'undefined') {
+                    if (Number.isInteger(numerator)) return numerator.toString();
+                    return numerator.toFixed(2);
+                }
+                if (numerator === 0) return "0";
+                if (denominator === 0) return "Non défini";
+                
+                let sign = Math.sign(numerator) * Math.sign(denominator);
+                let num = Math.abs(numerator);
+                let den = Math.abs(denominator);
+                
+                const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+                const common = gcd(num, den);
+                
+                num /= common;
+                den /= common;
+                
+                if (den === 1) return (sign * num).toString();
+                const finalSign = sign === -1 ? "-" : "";
+                return `${finalSign}\\dfrac{${num}}{${den}}`;
+            }
+
+            function generateFactor(minA = -4, maxA = 4, minB = -8, maxB = 8) {
+                const a = getRandomInt(minA, maxA);
+                const b = getRandomInt(minB, maxB);
+                
+                let factorStr = "";
+                if (a === 1) factorStr += "x"; else if (a === -1) factorStr += "-x"; else factorStr += a + "x";
+                if (b > 0) factorStr += " + " + b; else if (b < 0) factorStr += " - " + Math.abs(b);
+                
+                const root = -b / a;
+                return { 
+                    a: a, 
+                    b: b, 
+                    str: factorStr, 
+                    root: root, 
+                    rootFraction: a === 0 ? "Non défini" : simplifyFraction(-b, a) 
+                };
+            }
+            
+            function getFactorSignValue(factor, x) {
+                const value = factor.a * x + factor.b;
+                if (Math.abs(value) < tolerance) return 0;
+                return Math.sign(value);
+            }
+
+            function generateSignTableHTML(factors) {
+                const allRoots = factors.map(f => f.root);
+                const uniqueSortedRoots = [...new Set(allRoots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b); 
+
+                let tableHTML = `<table class="sign-table"><thead>`;
+                tableHTML += `<tr class="root-row"><th>\\(x\\)</th><th>\\(-\\infty\\)</th>`;
+                
+                const displayRoots = uniqueSortedRoots.map(r => 
+                    factors.find(f => Math.abs(f.root - r) < tolerance)?.rootFraction || simplifyFraction(r)
+                );
+                
+                displayRoots.forEach(rootDisplay => {
+                    tableHTML += `<th class="interval-header"></th><th class="root-cell">\\(${rootDisplay}\\)</th>`;
+                });
+                
+                tableHTML += `<th class="interval-header"></th><th>\\(+\\infty\\)</th></tr></thead><tbody>`;
+
+                factors.forEach((factor, factorIndex) => {
+                    tableHTML += `<tr><td>\\(${factor.str}\\)</td><td></td>`; 
+
+                    for (let i = 0; i < uniqueSortedRoots.length; i++) {
+                        const r_current = uniqueSortedRoots[i];
+                        const r_prev = (i === 0) ? -Infinity : uniqueSortedRoots[i - 1];
+
+                        let testPointInterval;
+                        if (r_prev === -Infinity) testPointInterval = r_current - 1;
+                        else testPointInterval = (r_prev + r_current) / 2;
+                        
+                        const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? "+" : "-";
+                        tableHTML += `<td>${intervalSign}</td>`;
+
+                        const isZero = Math.abs(factor.root - r_current) < tolerance;
+                        // Si le facteur a la propriété isQuotient, il génère une double barre à sa racine
+                        const isDenominatorRoot = factor.isQuotient && isZero; 
+                        
+                        if (isDenominatorRoot) {
+                            tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`;
+                        } else if (isZero) {
+                            tableHTML += `<td style="font-weight: bold;">0</td>`;
+                        } else {
+                            tableHTML += `<td class="simple-bar">|</td>`;
+                        }
+                    }
+                    
+                    const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
+                    const testPointLast = r_last + 1;
+                    const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? "+" : "-";
+                    tableHTML += `<td>${lastIntervalSign}</td><td></td></tr>`;
+                });
+                
+                tableHTML += `<tr style="font-weight: bold;"><td>\\(E(x)\\)</td><td></td>`; 
+
+                for (let i = 0; i < uniqueSortedRoots.length; i++) {
+                    const r_current = uniqueSortedRoots[i];
+                    const r_prev = (i === 0) ? -Infinity : uniqueSortedRoots[i - 1];
+                    
+                    let testPoint;
+                    if (r_prev === -Infinity) testPoint = r_current - 1;
+                    else testPoint = (r_prev + r_current) / 2;
+                    
+                    let productSign = 1;
+                    factors.forEach(factor => productSign *= getFactorSignValue(factor, testPoint));
+                    tableHTML += `<td>${productSign >= 0 ? "+" : "-"}</td>`;
+
+                    // Vérification Valeur Interdite Globale (si UN des dénominateurs est nul)
+                    const isValueInterdite = factors.some(f => f.isQuotient && Math.abs(f.root - r_current) < tolerance); 
+                    
+                    if (isValueInterdite) {
+                        tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`;
+                    } else {
+                        tableHTML += `<td>0</td>`;
+                    }
+                }
+
+                const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
+                const testPointLast = r_last + 1;
+                let productSignLast = 1;
+                factors.forEach(factor => productSignLast *= getFactorSignValue(factor, testPointLast));
+                tableHTML += `<td>${productSignLast >= 0 ? "+" : "-"}</td><td></td></tr></tbody></table>`; 
+                return tableHTML;
+            }
+
+            function generateExercise() {
+                solutionOutput.style.display = 'none'; 
+                let factors = [];
+                let expressionStr = "";
+                let displayExpression = ""; 
+                let factorizationStep = null; 
+                let complexity = parseInt(complexitySelect.value);
+
+                const minA = -4, maxA = 4;
+                const minB = -6, maxB = 6;
+
+                // === NIVEAU 1 à 4 (Standard) ===
+                if (complexity <= 4) {
+                    if (complexity === 1) {
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        displayExpression = factors[0].str;
+                    } else if (complexity === 2) {
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        displayExpression = `(${factors[0].str})(${factors[1].str})`;
+                    } else if (complexity === 3) {
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors[1].isQuotient = true; 
+                        displayExpression = `\\dfrac{${factors[0].str}}{${factors[1].str}}`;
+                    } else if (complexity === 4) {
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        displayExpression = `(${factors[0].str})(${factors[1].str})(${factors[2].str})`;
+                    }
+                } 
+                
+                // === NIVEAU 5 : FACTORISATION PURE ===
+                else if (complexity === 5) {
+                    const k_base = getRandomInt(2, 6);
+                    const k_squared = k_base * k_base;
+                    const baseFactor = generateFactor(minA, maxA, minB, maxB);
+                    displayExpression = `(${baseFactor.str})^2 - ${k_squared}`;
+                    
+                    // Calcul Facteurs
+                    const f1 = { a: baseFactor.a, b: baseFactor.b - k_base, str: "", root: 0, rootFraction: "" };
+                    const f2 = { a: baseFactor.a, b: baseFactor.b + k_base, str: "", root: 0, rootFraction: "" };
+                    // Update props
+                    [f1, f2].forEach(f => {
+                        f.str = (f.a === 1 ? "x" : (f.a === -1 ? "-x" : f.a+"x")) + (f.b>=0 ? "+"+f.b : f.b);
+                        f.root = -f.b/f.a;
+                        f.rootFraction = simplifyFraction(-f.b, f.a);
+                    });
+
+                    factors.push(f1, f2);
+
+                    factorizationStep = {
+                        initial: displayExpression,
+                        identity: `A^2 - B^2 = (A-B)(A+B)`,
+                        step1: `A = (${baseFactor.str}) \\quad \\text{et} \\quad B = ${k_base}`,
+                        final: `E(x) = (${f1.str})(${f2.str})`
+                    };
+                }
+
+                // === NIVEAU 6 : EXPERT (Quotients complexes ou Factorisation dans Quotient) ===
+                else if (complexity === 6) {
+                    const variant = Math.random() < 0.5 ? 'fact_quotient' : 'multi_quotient';
+
+                    if (variant === 'fact_quotient') {
+                        // Cas : ( (ax+b)^2 - k^2 ) / (cx+d)
+                        const k_base = getRandomInt(2, 6);
+                        const k_squared = k_base * k_base;
+                        const baseFactor = generateFactor(minA, maxA, minB, maxB);
+                        const denomFactor = generateFactor(minA, maxA, minB, maxB);
+                        denomFactor.isQuotient = true;
+
+                        displayExpression = `\\dfrac{(${baseFactor.str})^2 - ${k_squared}}{${denomFactor.str}}`;
+
+                        // Calcul Facteurs Numérateur
+                        const f1 = { a: baseFactor.a, b: baseFactor.b - k_base, str: "", root: 0, rootFraction: "" };
+                        const f2 = { a: baseFactor.a, b: baseFactor.b + k_base, str: "", root: 0, rootFraction: "" };
+                         // Update props
+                         [f1, f2].forEach(f => {
+                            f.str = (f.a === 1 ? "x" : (f.a === -1 ? "-x" : f.a+"x")) + (f.b>=0 ? "+"+f.b : f.b);
+                            f.root = -f.b/f.a;
+                            f.rootFraction = simplifyFraction(-f.b, f.a);
+                        });
+
+                        factors.push(f1, f2, denomFactor);
+
+                        factorizationStep = {
+                            initial: `(${baseFactor.str})^2 - ${k_squared}`,
+                            identity: `A^2 - B^2 = (A-B)(A+B)`,
+                            step1: `\\text{Numérateur : } A = (${baseFactor.str}), B = ${k_base}`,
+                            final: `E(x) = \\dfrac{(${f1.str})(${f2.str})}{${denomFactor.str}}`
+                        };
+
+                    } else {
+                        // Cas : Quotient à 3 facteurs (ex: 2 en haut 1 en bas, ou 1 en haut 2 en bas)
+                        const f1 = generateFactor(minA, maxA, minB, maxB);
+                        const f2 = generateFactor(minA, maxA, minB, maxB);
+                        const f3 = generateFactor(minA, maxA, minB, maxB);
+
+                        // Random : 1 Denom ou 2 Denoms
+                        if (Math.random() < 0.5) {
+                            // Forme (f1*f2)/f3
+                            f3.isQuotient = true;
+                            displayExpression = `\\dfrac{(${f1.str})(${f2.str})}{${f3.str}}`;
+                        } else {
+                            // Forme f1/(f2*f3)
+                            f2.isQuotient = true;
+                            f3.isQuotient = true;
+                            displayExpression = `\\dfrac{${f1.str}}{(${f2.str})(${f3.str})}`;
+                        }
+                        factors.push(f1, f2, f3);
+                    }
+                }
+
+                currentExercise = {
+                    expressionDisplay: displayExpression,
+                    factors: factors,
+                    complexity: complexity,
+                    factorizationStep: factorizationStep
+                };
+                
+                let énoncé = `Dresser le <b>tableau de signe</b> de :`;
+                if (complexity >= 3 && complexity !== 5) énoncé += ` (Attention aux valeurs interdites !)`;
+                if (complexity === 5 || complexity === 6) énoncé += ` (Regardez bien si une factorisation est nécessaire)`;
+
+                exerciseOutput.innerHTML = `<p>${énoncé}</p><div class="math-container">\\[ E(x) = ${displayExpression} \\]</div>`;
+                if (window.MathJax) MathJax.typesetPromise([exerciseOutput]).catch((err) => console.log('MathJax Error:', err));
+            }
+
+            function showSolution() {
+                if (!currentExercise) { alert("Générez un exercice d'abord."); return; }
+                const { expressionDisplay, factors, complexity, factorizationStep } = currentExercise;
+                let roots = factors.map(f => f.root);
+                
+                let solutionHTML = `<p>Étude de : \\( E(x) = ${expressionDisplay} \\)</p>`;
+
+                // --- ETAPE FACTORISATION (Niveau 5 et 6A) ---
+                if (factorizationStep) {
+                    solutionHTML += `
+                        <h3>Étape 0 : Factorisation</h3>
+                        <p>On reconnaît une identité remarquable \\( A^2 - B^2 \\).</p>
+                        <div class="math-container">
+                            \\[ ${factorizationStep.initial} \\]
+                            \\[ ${factorizationStep.step1} \\]
+                            \\[ \\mathbf{${factorizationStep.final}} \\]
+                        </div>
+                    `;
+                }
+
+                // --- ETAPE 1 : RESOLUTION ---
+                solutionHTML += `<h3>Étape 1 : Résolution des inéquations</h3><ul>`;
+                
+                factors.forEach((f, index) => {
+                    const inequalitySymbol = f.a > 0 ? "\\geq" : "\\leq"; 
+                    const inequalityText = f.a > 0 
+                        ? "\\text{(On conserve l'ordre)}" 
+                        : "\\text{(On inverse l'ordre)}";
+                    
+                    // Message pour quotient
+                    let note = "";
+                    if (f.isQuotient) note = "<br><span style='color:#dc3545'><strong>Attention : Racine du dénominateur = Valeur Interdite (||).</strong></span>";
+
+                    solutionHTML += `
+                        <li>
+                            <strong>Facteur \\( ${f.str} \\) :</strong>
+                            <div class="math-container">
+                                \\[ ${f.a}x ${f.b < 0 ? '-' : '+'} ${Math.abs(f.b)} \\geq 0 \\implies ${f.a}x \\geq ${-f.b} \\]
+                                \\[ x ${inequalitySymbol} ${f.rootFraction} \\quad ${inequalityText} \\]
+                            </div>
+                            Conclusion : <strong>+</strong> si \( x \) est ${f.a > 0 ? "<strong>supérieur</strong>" : "<strong>inférieur</strong>"} à \\( ${f.rootFraction} \\). ${note}
+                        </li>
+                    `;
+                });
+                solutionHTML += `</ul>`;
+
+                const uniqueSortedRoots = [...new Set(roots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b);
+                
+                solutionHTML += `<h3>Étape 2 : Tableau de Signe</h3>
+                                 <p>Racines ordonnées : ${uniqueSortedRoots.map(r => `\\( ${factors.find(f => Math.abs(f.root - r) < tolerance).rootFraction} \\)`).join(' < ')}.</p>
+                                 <div class="math-container">${generateSignTableHTML(factors)}</div>`;
+                
+                solutionOutput.innerHTML = solutionHTML;
+                solutionOutput.style.display = 'block';
+                if (window.MathJax) MathJax.typesetPromise([solutionOutput]).catch((err) => console.log('MathJax Error:', err));
+            }
+
+            generateBtn.addEventListener('click', generateExercise);
+            showSolutionBtn.addEventListener('click', showSolution);
+            // Premier lancement
+            generateExercise();
+        });
+    </script>
+</body>
+</html>
