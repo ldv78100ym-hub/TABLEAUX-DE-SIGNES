@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Générateur Ultime : Tableaux de Signe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Générateur Ultime : Tableaux de Signe</title>
     
     <script>
         MathJax = {
@@ -18,14 +17,17 @@
     
     <style>
         :root {
-            --primary-color: #007bff;
+            --primary-color: #007bff; /* Bleu pour les (-) et le code négatif */
             --secondary-color: #6c757d;
             --success-color: #28a745;
-            --danger-color: #dc3545;
+            --danger-color: #dc3545; /* Rouge pour les (+) et les alertes */
             --info-color: #17a2b8;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --copyright-color: #ffc107; /* Couleur pour le bouton Droit d'Auteur */
+            --copyright-color: #ffc107; 
+            --rules-color: #17a2b8; 
+            --accessibility-color: #3dbe92; 
+            --speak-color: #ff7f50; 
         }
 
         body {
@@ -34,7 +36,7 @@
             padding: 20px;
             color: #343a40;
             line-height: 1.6;
-            margin: 0; /* Reset marge body */
+            margin: 0; 
         }
 
         .container { max-width: 1100px; margin: auto; padding: 0 10px; }
@@ -45,7 +47,7 @@
             border-bottom: 3px solid var(--primary-color); 
             padding-bottom: 10px; 
             display: inline-block; 
-            font-size: 2rem; /* Taille relative */
+            font-size: 2rem; 
         }
 
         .card {
@@ -67,7 +69,7 @@
 
         select { 
             padding: 12px; 
-            border-radius: 50px; /* Arrondi comme les boutons */
+            border-radius: 50px; 
             border: 1px solid #ced4da; 
             font-size: 1em;
             background-color: white;
@@ -79,21 +81,28 @@
             cursor: pointer; font-weight: bold; color: white; font-size: 1em;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            white-space: nowrap; /* Empêche le texte de se casser */
+            white-space: nowrap; 
         }
         button:active { transform: scale(0.98); }
         
         #generate-btn { background-color: var(--success-color); }
         #show-solution-btn { background-color: var(--primary-color); }
-        #print-btn { background-color: var(--secondary-color); }
+        #rules-btn { background-color: var(--rules-color); } 
+        #print-btn { background-color: var(--secondary-color); } 
         
-        /* Style pour le bouton des droits d'auteur en bas de carte */
+        /* NOUVEAU CONTENEUR POUR LES BOUTONS DU BAS */
+        .bottom-buttons { 
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px auto 10px auto; 
+            flex-wrap: wrap; 
+        }
+
         #copyright-btn { 
             background-color: var(--copyright-color); 
             color: #343a40; 
-            display: block; /* Prend toute la largeur si on est en mobile */
-            margin: 30px auto 10px auto; /* Centre le bouton et donne de la marge au-dessus */
-            width: fit-content; /* S'adapte à la taille du texte */
+            width: fit-content; 
             max-width: 100%;
         }
 
@@ -102,7 +111,7 @@
             border: 2px dashed var(--primary-color);
             background-color: #f0f8ff;
             border-radius: 10px; min-height: 60px; margin-bottom: 20px; text-align: center;
-            word-wrap: break-word; /* Coupe les mots longs si besoin */
+            word-wrap: break-word; 
         }
 
         #solution-output {
@@ -115,8 +124,8 @@
         .math-container {
             margin: 15px 0; padding: 10px; background-color: #f8f9fa;
             border-radius: 5px; 
-            overflow-x: auto; /* Permet le scroll horizontal */
-            -webkit-overflow-scrolling: touch; /* Scroll fluide sur iOS */
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
             text-align: center; 
             border: 1px solid #e9ecef;
         }
@@ -126,10 +135,10 @@
             padding: 15px; border-radius: 4px; margin-top: 20px;
         }
         
-        /* TABLEAU DE SIGNE */
+        /* TABLEAU DE SIGNE styles */
         .sign-table {
             border-collapse: collapse; width: 100%; font-size: 1.1em;
-            min-width: 600px; /* Force le scroll sur petit écran si nécessaire */
+            min-width: 600px; 
             margin-top: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
@@ -139,7 +148,7 @@
         }
         .sign-table th:first-child, .sign-table td:first-child {
             text-align: left; width: 20%; padding-left: 15px; font-weight: bold; background-color: #e9ecef;
-            position: sticky; /* Garde la 1ère colonne visible si on scroll ? (Optionnel, parfois buggy sur mobile) */
+            position: sticky; 
             left: 0;
         }
         .sign-table tr:last-child { background-color: #d1ecf1; font-weight: bold; }
@@ -150,8 +159,69 @@
         }
         .sign-table .simple-bar { color: #adb5bd; font-weight: lighter; }
         .interval-header { width: 10%; }
+        
+        /* --- Styles pour les signes colorés dans le tableau (NOUVEAU) --- */
+        .sign-plus {
+            color: var(--danger-color); /* Rouge */
+            font-weight: bold;
+        }
+        .sign-minus {
+            color: var(--primary-color); /* Bleu */
+            font-weight: bold;
+        }
 
-        /* --- MODAL (Droits d'Auteur) --- */
+
+        /* --- NOUVEAU STYLE POUR LES RÈGLES DANS LA SOLUTION --- */
+        #solution-output ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        #solution-output li {
+            background-color: #f0f9ff; /* Light background for list items */
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0f2ff;
+        }
+        .rule-controls {
+            display: flex; 
+            gap: 10px; 
+            margin-top: 5px; 
+            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap; 
+        }
+        .rule-controls button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            box-shadow: none;
+            transition: none;
+            margin: 0; /* Override button margin/padding */
+        }
+        .rule-controls button:active { transform: none; }
+        
+        .rule-math-display, .rule-french-display {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #ced4da;
+            border-radius: 5px;
+            background-color: #ffffff;
+            display: none; /* Hidden by default */
+            text-align: center;
+            font-style: italic;
+        }
+        .rule-french-display {
+            text-align: left;
+            font-style: normal;
+        }
+        .rule-math-display .mjx-container {
+            margin: 5px auto !important;
+        }
+        /* --- FIN NOUVEAU STYLE --- */
+
+
+        /* --- MODAL (Général) --- */
         .modal {
             display: none; 
             position: fixed; z-index: 1000; 
@@ -161,10 +231,10 @@
         }
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto; /* 10% du haut et centré */
+            margin: 10% auto; 
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Largeur de la modale */
+            width: 80%; 
             max-width: 600px;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -181,6 +251,48 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- Style spécifique pour les règles --- */
+        .rules-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        #toggle-lang-btn {
+            background-color: var(--accessibility-color);
+            flex-grow: 1;
+        }
+        #speak-btn {
+            background-color: var(--speak-color);
+        }
+
+        .rules-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .rules-list li {
+            background-color: #e6f7ff;
+            border: 1px solid #b3e6ff;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .danger-text {
+            color: var(--danger-color); 
+            font-weight: bold;
+        }
+        .french-rule {
+            display: none; 
+            font-style: italic;
+        }
+        /* Pour le MathJax dans la modale */
+        .math-rule .mjx-container {
+            margin: 10px 0; 
+        }
+        .rules-content {
+            clear: both; 
+        }
+
         /* --- CSS RESPONSIVE (Mobile & Tablettes) --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -191,38 +303,52 @@
             /* Empiler les contrôles verticalement */
             .controls { 
                 flex-direction: column; 
-                align-items: stretch; /* Étire les boutons sur toute la largeur */
+                align-items: stretch; 
                 gap: 10px;
             }
             
-            .controls label { display: none; /* On cache le label "Niveau" pour gagner de la place, le select est explicite */ }
+            .controls label { display: none; }
             
             select, button { width: 100%; margin: 0; text-align: center; }
             
-            /* Le bouton copyright prend 100% de la largeur sur mobile */
-            #copyright-btn { width: 100%; margin: 20px 0 10px 0; }
-
-            /* Ajustement des tableaux sur mobile */
-            .sign-table { font-size: 0.95em; min-width: 500px; }
-            .sign-table th, .sign-table td { padding: 5px 2px; }
+            /* Ajustement des nouveaux boutons du bas */
+            .bottom-buttons {
+                flex-direction: column; /* Stack buttons vertically */
+                align-items: stretch; /* Stretch buttons to full width */
+                gap: 10px;
+                margin: 20px 0 10px 0;
+            }
             
-            #exercise-output { font-size: 1.1em; padding: 15px; }
-            
-            .reminder { font-size: 0.9em; }
+            #copyright-btn, #print-btn {
+                width: 100%;
+                margin: 0;
+                text-align: center;
+            }
+            /* Ajustement des contrôles de règle dans la solution */
+            .rule-controls {
+                flex-direction: column; 
+                align-items: flex-start; 
+            }
+            .rule-controls button {
+                width: 100%; 
+            }
 
             /* Ajustement modale sur mobile */
             .modal-content {
                 margin: 5% auto;
                 width: 95%;
             }
+            .rules-actions {
+                flex-direction: column;
+            }
         }
-
-        /* MEDIA PRINT */
+        /* MEDIA PRINT styles omitted for brevity */
         @media print {
             body { background-color: white; padding: 0; font-size: 12pt; }
             .container { max-width: 100%; margin: 0; width: 100%; }
             header h1 { font-size: 1.5em; border-bottom: 2px solid #000; }
-            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, .modal { display: none !important; }
+            /* Cacher tous les boutons dans les media queries print */
+            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, #rules-btn, .modal, .bottom-buttons, .rule-controls, .rule-display { display: none !important; }
             .card { box-shadow: none; border: none; padding: 0; margin: 0; }
             #exercise-output { border: 2px solid #000; background-color: white; color: black; margin-bottom: 30px; }
             #solution-output { display: block !important; border: none; border-top: 1px solid #ccc; padding-left: 0; margin-top: 20px; }
@@ -244,7 +370,7 @@
 
         <div class="card">
             <div class="controls">
-                <label for="complexity"><strong>Niveau :</strong></label>
+                <label for="complexity"><b>Niveau :</b></label>
                 <select id="complexity">
                     <option value="1">1. Expression simple (ax+b)</option>
                     <option value="2">2. Produit (2 facteurs)</option>
@@ -255,7 +381,7 @@
                 </select>
                 <button id="generate-btn">🔄 Nouveau</button>
                 <button id="show-solution-btn">💡 Solution</button>
-                <button id="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+                <button id="rules-btn">📚 Rappels Opérations</button>
             </div>
 
             <div id="exercise-output">
@@ -264,37 +390,106 @@
             
             <div id="solution-output"></div>
             
-            <button id="copyright-btn">⚖️ Droits d'Auteur</button> </div>
+            <div class="bottom-buttons">
+                <button id="copyright-btn">⚖️ Droits d'Auteur</button>
+                <button id="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+            </div>
+        </div>
 
         <div class="reminder">
             <h3>⚠️ Méthode & Rappels</h3>
             <ul>
-                <li><strong>Quotient :</strong> Les facteurs du dénominateur créent des valeurs interdites (Double barre ||).</li>
-                <li><strong>Factorisation :</strong> Si vous voyez un carré moins un nombre, pensez à \( A^2 - B^2 = (A-B)(A+B) \).</li>
-                <li><strong>Signes :</strong> Résoudre \( \text{Facteur} \geq 0 \) pour trouver la zone des \(+\).</li>
+                <li><b>Quotient :</b> Les facteurs du dénominateur créent des valeurs interdites (Double barre ||).</li>
+                <li><b>Factorisation :</b> Si vous voyez un carré moins un nombre, pensez à \( A^2 - B^2 = (A-B)(A+B) \).</li>
+                <li><b>Signes :</b> Résoudre \( \text{Facteur} \geq 0 \) pour trouver la zone des \(+\).</li>
             </ul>
+        </div>
+    </div>
+    
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn rules-close-btn">&times;</span>
+            <h2>📚 Rappels : Règle des Opérations</h2>
+            <hr>
+            
+            <div class="rules-actions">
+                <button id="toggle-lang-btn" data-lang="math">🇫🇷 Version Texte</button>
+                <button id="speak-btn">🔊 Lire à haute voix</button>
+            </div>
+            
+            <div class="rules-content">
+                <ul class="rules-list">
+                    <li>
+                        <b>Addition / Soustraction :</b>
+                        <div class="math-rule">
+                            <p>Si \( a = b \) et \( c \) est un réel, alors :<br>
+                            \[\color{#007bff}{a + c = b + c} \quad \text{et} \quad \color{#007bff}{a - c = b - c}\]
+                            (L'égalité est conservée.)</p>
+                            <p>Si \( a < b \) et \( c \) est un réel, alors :<br>
+                            \[\color{#28a745}{a + c < b + c} \quad \text{et} \quad \color{#28a745}{a - c < b - c}\]
+                            (L'inégalité est conservée.)</p>
+                        </div>
+                        <div class="french-rule">
+                            <p>On peut <b>ajouter ou soustraire</b> un même nombre des deux côtés d'une équation ou d'une inéquation <b>sans changer le sens</b> de l'opération.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <b>Multiplication / Division (Par un réel positif) :</b>
+                        <div class="math-rule">
+                            <p>Si \( a = b \) et \( c \) est un réel <b>non nul</b>, alors :<br>
+                            \[\color{#007bff}{a \times c = b \times c} \quad \text{et} \quad \color{#007bff}{\dfrac{a}{c} = \dfrac{b}{c}}\]
+                            (L'égalité est conservée.)</p>
+                            <p>Si \( a < b \) et \( c > 0 \), alors :<br>
+                            \[\color{#28a745}{a \times c < b \times c} \quad \text{et} \quad \color{#28a745}{\dfrac{a}{c} < \dfrac{b}{c}}\]
+                            (L'inégalité est conservée.)</p>
+                        </div>
+                         <div class="french-rule">
+                            <p>On peut <b>multiplier ou diviser</b> par un nombre <b>strictement positif</b> (\( c > 0 \)) des deux côtés d'une équation ou d'une inéquation <b>sans changer le sens</b> de l'opération.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <b>Multiplication / Division (Par un réel négatif) :</b>
+                        <div class="math-rule">
+                            <p>Si \( a < b \) et \( c < 0 \), alors :</p>
+                            <p class="danger-text">
+                                <b>ATTENTION : Inversion du Sens !</b>
+                            </p>
+                            \[\color{#dc3545}{a \times c > b \times c} \quad \text{et} \quad \color{#dc3545}{\dfrac{a}{c} > \dfrac{b}{c}}\]
+                            (Le sens de l'inégalité est <b>inversé</b>.)
+                        </div>
+                         <div class="french-rule">
+                            <p>Si l'on <b>multiplie ou divise</b> des deux côtés d'une inéquation par un nombre <b>strictement négatif</b> (\( c < 0 \)), il faut <b>obligatoirement inverser le sens</b> de l'inégalité. Ceci est la règle la plus importante lors de la résolution d'inéquations !</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
     
     <div id="copyrightModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-btn copyright-close-btn">&times;</span>
             <h2>⚖️ Droits d'Auteur et Licence d'Utilisation</h2>
-            <p><strong>Auteur : Yann Merdy (yann.merdy@gmail.com)</strong> - Novembre 2025</p>
+            <p><b>Auteur : Yann Merdy (yann.merdy@gmail.com)</b> - Novembre 2025</p>
             <hr>
             <h3>Licence d'Utilisation Non Commerciale</h3>
             <p>Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ("Générateur de Tableaux de Signe") sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
             
             <h4>Conditions :</h4>
             <ul>
-                <li><strong>Utilisation Privée et Éducative (Autorisée) :</strong> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu <b>uniquement</b> à des fins <b>personnelles, éducatives et non lucratives</b>.</li>
-                <li><strong>Utilisation Commerciale (Interdite) :</strong> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins <b>commerciales, lucratives ou professionnelles</b> est <b>strictement interdite</b> sans un accord écrit préalable et explicite de l'auteur.</li>
-                <li><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</li>
+                <li><b>Utilisation Privée et Éducative (Autorisée) :</b> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu <b>uniquement</b> à des fins <b>personnelles, éducatives et non lucratives</b>.</li>
+                <li><b>Utilisation Commerciale (Interdite) :</b> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins <b>commerciales, lucratives ou professionnelles</b> est <b>strictement interdite</b> sans un accord écrit préalable et explicite de l'auteur.</li>
+                <li><b>Attribution :</b> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</li>
             </ul>
             <p style="margin-top: 20px; font-style: italic;">Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
         </div>
     </div>
     <script>
+        // Déclaration des variables globales
+        let isMathMode = true;
+        const speechSynthesis = window.speechSynthesis;
+        let utterance = null; 
+
         document.addEventListener('DOMContentLoaded', () => {
             const generateBtn = document.getElementById('generate-btn');
             const showSolutionBtn = document.getElementById('show-solution-btn');
@@ -302,30 +497,133 @@
             const exerciseOutput = document.getElementById('exercise-output');
             const solutionOutput = document.getElementById('solution-output');
             
-            // Éléments de la Modale NOUVEAUX
+            // Éléments des Modales
             const copyrightBtn = document.getElementById('copyright-btn');
-            const modal = document.getElementById('copyrightModal');
-            const closeBtn = document.getElementsByClassName('close-btn')[0];
+            const copyrightModal = document.getElementById('copyrightModal');
+            const rulesBtn = document.getElementById('rules-btn'); 
+            const rulesModal = document.getElementById('rulesModal'); 
+            const closeBtns = document.querySelectorAll('.close-btn');
+            
+            // Éléments de la Modale RÈGLES
+            const toggleLangBtn = document.getElementById('toggle-lang-btn');
+            const speakBtn = document.getElementById('speak-btn');
+            const mathRules = rulesModal.querySelectorAll('.math-rule');
+            const frenchRules = rulesModal.querySelectorAll('.french-rule');
+
 
             let currentExercise = null;
             const tolerance = 0.0001; 
 
-            // --- Fonctions de la Modale ---
-            copyrightBtn.onclick = function() {
-                modal.style.display = "block";
-            }
-
-            closeBtn.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
+            // --- Fonctions des Modales principales ---
+            function openModal(modalElement) {
+                modalElement.style.display = "block";
+                if (modalElement.id === 'rulesModal' && isMathMode && window.MathJax) {
+                    // Forcer le typeset MathJax à chaque ouverture si on est en mode Math
+                    MathJax.typesetPromise([modalElement]).catch((err) => console.log('MathJax Error in Modal:', err));
                 }
             }
-            // -----------------------------
 
+            function closeModal(modalElement) {
+                modalElement.style.display = "none";
+                // Arrêter la lecture si elle est en cours
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    // Réinitialiser le bouton de lecture de la MODALE RÈGLES
+                    if (speakBtn.textContent !== '🔊 Lire à haute voix') {
+                         speakBtn.textContent = '🔊 Lire à haute voix'; 
+                    }
+                }
+            }
+            
+            copyrightBtn.onclick = () => closeModal(rulesModal) || openModal(copyrightModal);
+            rulesBtn.onclick = () => closeModal(copyrightModal) || openModal(rulesModal); 
+
+            closeBtns.forEach(btn => {
+                btn.onclick = function() {
+                    closeModal(this.closest('.modal')); 
+                }
+            });
+
+            window.onclick = function(event) {
+                if (event.target == copyrightModal) {
+                    closeModal(copyrightModal);
+                } else if (event.target == rulesModal) { 
+                    closeModal(rulesModal);
+                }
+            }
+
+            // --- Fonction : Bascule de Langue pour la MODALE RÈGLES ---
+            function toggleLanguage() {
+                isMathMode = !isMathMode;
+                
+                if (isMathMode) {
+                    toggleLangBtn.textContent = '🇫🇷 Version Texte';
+                    mathRules.forEach(el => el.style.display = 'block');
+                    frenchRules.forEach(el => el.style.display = 'none');
+                    if (window.MathJax) MathJax.typesetPromise([rulesModal]).catch((err) => console.log('MathJax Error after toggle:', err));
+                } else {
+                    toggleLangBtn.textContent = '📐 Version Math';
+                    mathRules.forEach(el => el.style.display = 'none');
+                    frenchRules.forEach(el => el.style.display = 'block');
+                }
+            }
+            toggleLangBtn.addEventListener('click', toggleLanguage);
+            
+            // --- Fonction : Lecture à Haute Voix pour la MODALE RÈGLES ---
+            function speakText() {
+                if (!speechSynthesis) {
+                    alert("Désolé, votre navigateur ne supporte pas la synthèse vocale.");
+                    return;
+                }
+
+                if (speechSynthesis.speaking) {
+                    // Si ça parle, on arrête
+                    speechSynthesis.cancel();
+                    speakBtn.textContent = '🔊 Lire à haute voix';
+                    return;
+                }
+                
+                const ruleListItems = rulesModal.querySelectorAll('.rules-list li');
+                const utterances = [];
+
+                ruleListItems.forEach((li, index) => {
+                    const titleElement = li.querySelector('b:first-of-type');
+                    let titleText = titleElement ? titleElement.textContent.replace(':', '').trim() : `Règle numéro ${index + 1}`;
+                    const frenchRuleElement = li.querySelector('.french-rule p');
+                    let ruleBodyText = frenchRuleElement ? frenchRuleElement.innerText || frenchRuleElement.textContent : "";
+                    
+                    ruleBodyText = ruleBodyText.replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+
+                    if (ruleBodyText) {
+                        const titleUtterance = new SpeechSynthesisUtterance(titleText);
+                        titleUtterance.lang = 'fr-FR';
+                        titleUtterance.rate = 1.0; 
+                        utterances.push(titleUtterance);
+                        
+                        const bodyUtterance = new SpeechSynthesisUtterance(ruleBodyText);
+                        bodyUtterance.lang = 'fr-FR';
+                        bodyUtterance.rate = 0.95; 
+                        utterances.push(bodyUtterance);
+                    }
+                });
+
+                if (utterances.length > 0) {
+                    speakBtn.textContent = '🛑 Arrêter la lecture';
+                    
+                    utterances[utterances.length - 1].onend = function() {
+                        speakBtn.textContent = '🔊 Lire à haute voix';
+                    };
+                    
+                    utterances.forEach(u => speechSynthesis.speak(u));
+                } else {
+                    alert("Aucun texte de règle n'est disponible pour la lecture.");
+                }
+            }
+            speakBtn.addEventListener('click', speakText);
+            // ------------------------------------------------
+
+
+            // --- Fonctions Mathématiques & Génération ---
 
             function getRandomInt(min, max) {
                 let num;
@@ -382,6 +680,7 @@
 
             function generateSignTableHTML(factors) {
                 const allRoots = factors.map(f => f.root);
+                // Utilisation de toFixed(5) pour gérer la précision des floats avant de trier
                 const uniqueSortedRoots = [...new Set(allRoots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b); 
 
                 let tableHTML = `<table class="sign-table"><thead>`;
@@ -408,7 +707,10 @@
                         if (r_prev === -Infinity) testPointInterval = r_current - 1;
                         else testPointInterval = (r_prev + r_current) / 2;
                         
-                        const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? "+" : "-";
+                        // APPLICATION DES COULEURS
+                        const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? 
+                            `<span class="sign-plus">+</span>` : 
+                            `<span class="sign-minus">-</span>`;
                         tableHTML += `<td>${intervalSign}</td>`;
 
                         const isZero = Math.abs(factor.root - r_current) < tolerance;
@@ -425,7 +727,10 @@
                     
                     const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
                     const testPointLast = r_last + 1;
-                    const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? "+" : "-";
+                    // APPLICATION DES COULEURS
+                    const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? 
+                        `<span class="sign-plus">+</span>` : 
+                        `<span class="sign-minus">-</span>`;
                     tableHTML += `<td>${lastIntervalSign}</td><td></td></tr>`;
                 });
                 
@@ -441,7 +746,8 @@
                     
                     let productSign = 1;
                     factors.forEach(factor => productSign *= getFactorSignValue(factor, testPoint));
-                    tableHTML += `<td>${productSign >= 0 ? "+" : "-"}</td>`;
+                    // APPLICATION DES COULEURS
+                    tableHTML += `<td>${productSign >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td>`;
 
                     const isValueInterdite = factors.some(f => f.isQuotient && Math.abs(f.root - r_current) < tolerance); 
                     
@@ -456,7 +762,8 @@
                 const testPointLast = r_last + 1;
                 let productSignLast = 1;
                 factors.forEach(factor => productSignLast *= getFactorSignValue(factor, testPointLast));
-                tableHTML += `<td>${productSignLast >= 0 ? "+" : "-"}</td><td></td></tr></tbody></table>`; 
+                // APPLICATION DES COULEURS
+                tableHTML += `<td>${productSignLast >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td><td></td></tr></tbody></table>`; 
                 return tableHTML;
             }
 
@@ -575,6 +882,83 @@
                 if (window.MathJax) MathJax.typesetPromise([exerciseOutput]).catch((err) => console.log('MathJax Error:', err));
             }
 
+            // --- NOUVELLE FONCTION POUR GÉRER LES BOUTONS DE RÈGLE DE LA SOLUTION ---
+            function setupRuleControls() {
+                // Arrêter la lecture en cours au cas où un autre bouton "Voix" est cliqué
+                speechSynthesis.cancel();
+                document.querySelectorAll('.rule-speak-btn').forEach(btn => btn.textContent = '🔊 Voix');
+
+                document.querySelectorAll('.rule-toggle-btn').forEach(button => {
+                    button.onclick = function() {
+                        const factorId = this.dataset.factorId;
+                        const targetMode = this.dataset.target;
+                        
+                        // Cible l'élément d'affichage de la règle pour ce facteur et ce mode
+                        const targetDisplay = document.querySelector(`.rule-display[data-factor-id="${factorId}"][data-mode="${targetMode}"]`);
+
+                        // Cacher tous les affichages de règles pour ce facteur et arrêter la lecture
+                        document.querySelectorAll(`.rule-display[data-factor-id="${factorId}"]`).forEach(el => {
+                            if (el !== targetDisplay) {
+                                el.style.display = 'none';
+                            }
+                        });
+                        speechSynthesis.cancel();
+                        document.querySelectorAll('.rule-speak-btn').forEach(btn => btn.textContent = '🔊 Voix');
+
+
+                        // Basculer l'affichage cible
+                        if (targetDisplay.style.display === 'block') {
+                            targetDisplay.style.display = 'none';
+                        } else {
+                            targetDisplay.style.display = 'block';
+                            // Typeset MathJax si nécessaire
+                            if (targetMode === 'math' && window.MathJax) {
+                                MathJax.typesetPromise([targetDisplay]).catch((err) => console.log('MathJax Error in rule display:', err));
+                            }
+                        }
+                    };
+                });
+
+                document.querySelectorAll('.rule-speak-btn').forEach(button => {
+                    button.onclick = function() {
+                        const textToSpeak = this.dataset.text;
+                        
+                        // Arrêter la lecture en cours, y compris celle du bouton principal de la modale
+                        speechSynthesis.cancel();
+                        document.querySelectorAll('.rule-speak-btn').forEach(btn => {
+                            if (btn !== this) {
+                                btn.textContent = '🔊 Voix';
+                            }
+                        });
+                        if (document.getElementById('speak-btn').textContent !== '🔊 Lire à haute voix') {
+                             document.getElementById('speak-btn').textContent = '🔊 Lire à haute voix'; 
+                        }
+
+
+                        if (this.textContent === '🛑 Arrêter') {
+                            // Cliqué pour arrêter
+                            this.textContent = '🔊 Voix';
+                            return;
+                        }
+
+                        // Commencer la nouvelle lecture
+                        utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        utterance.lang = 'fr-FR';
+                        utterance.rate = 0.95; 
+
+                        const btn = this;
+                        btn.textContent = '🛑 Arrêter';
+
+                        utterance.onend = function() {
+                            btn.textContent = '🔊 Voix';
+                        };
+                        
+                        speechSynthesis.speak(utterance);
+                    };
+                });
+            }
+            // --- FIN NOUVELLE FONCTION ---
+
             function showSolution() {
                 if (!currentExercise) { alert("Générez un exercice d'abord."); return; }
                 const { expressionDisplay, factors, complexity, factorizationStep } = currentExercise;
@@ -597,22 +981,59 @@
                 solutionHTML += `<h3>Étape 1 : Résolution des inéquations</h3><ul>`;
                 
                 factors.forEach((f, index) => {
-                    const inequalitySymbol = f.a > 0 ? "\\geq" : "\\leq"; 
-                    const inequalityText = f.a > 0 
+                    const isPositiveDivisor = f.a > 0;
+                    const inequalitySymbol = isPositiveDivisor ? "\\geq" : "\\leq"; 
+                    const inequalityText = isPositiveDivisor 
                         ? "\\text{(On conserve l'ordre)}" 
-                        : "\\text{(On inverse l'ordre)}";
+                        : "\\text{(On inverse l'ordre car division par un nombre négatif)}";
                     
                     let note = "";
-                    if (f.isQuotient) note = "<br><span style='color:#dc3545'><strong>Attention : Racine du dénominateur = Valeur Interdite (||).</strong></span>";
+                    if (f.isQuotient) note = "<br><span style='color:var(--danger-color)'><b>Attention : Racine du dénominateur = Valeur Interdite (||).</b></span>";
+
+                    // Contenu de la règle pour l'affichage/la voix
+                    const ruleMath = isPositiveDivisor 
+                        ? `\\dfrac{A}{c} < \\dfrac{B}{c} \\quad \\text{si} \\quad c > 0` 
+                        : `\\dfrac{A}{c} > \\dfrac{B}{c} \\quad \\text{si} \\quad c < 0 \\text{ (Inversion !)}`
+                    const ruleFrench = isPositiveDivisor 
+                        ? "Règle : Pour isoler x, on divise par le coefficient A = " + f.a + ". Puisque A est positif, l'ordre de l'inégalité est conservé." 
+                        : "Règle : Pour isoler x, on divise par le coefficient A = " + f.a + ". Puisque A est négatif, il faut obligatoirement inverser le sens de l'inégalité."
+                    
+                    // Gestion des couleurs pour la conclusion (NOUVEAU)
+                    const comparisonTextColored = isPositiveDivisor 
+                        ? `<span style="color:var(--danger-color); font-weight:bold;">supérieur</span>` 
+                        : `<span style="color:var(--primary-color); font-weight:bold;">inférieur</span>`;
+                        
+                    const plusSignColored = `<span style="color:var(--danger-color);"><b>+</b></span>`;
+                    
+                    // NOUVELLE PHRASE DE CONCLUSION
+                    const finalConclusion = `Conclusion : Le <strong>signe</strong> de \\(${f.str}\\) est ${plusSignColored} si \\( x \\) est ${comparisonTextColored} à \\( ${f.rootFraction} \\). ${note}`;
+                    
+                    const encodedRuleFrench = ruleFrench.replace(/"/g, '&quot;');
+
 
                     solutionHTML += `
-                        <li>
-                            <strong>Facteur \\( ${f.str} \\) :</strong>
+                        <li id="factor-${index}">
+                            <b>Facteur \\( ${f.str} \\) :</b>
+                            
+                            <div class="rule-controls">
+                                <span style="font-size: 0.9em; font-weight: 600;">Règle :</span>
+                                <button class="rule-toggle-btn" data-target="math" data-factor-id="${index}" style="background-color: var(--primary-color);">📐 Math</button>
+                                <button class="rule-toggle-btn" data-target="french" data-factor-id="${index}" style="background-color: var(--accessibility-color);">🇫🇷 Texte</button>
+                                <button class="rule-speak-btn" data-factor-id="${index}" data-text="${encodedRuleFrench}" style="background-color: var(--speak-color);">🔊 Voix</button>
+                            </div>
+                            
+                            <div class="rule-math-display rule-display" data-factor-id="${index}" data-mode="math">
+                                \\[ ${ruleMath} \\]
+                            </div>
+                            <div class="rule-french-display rule-display" data-factor-id="${index}" data-mode="french">
+                                <p>${ruleFrench}</p>
+                            </div>
+
                             <div class="math-container">
-                                \\[ ${f.a}x ${f.b < 0 ? '-' : '+'} ${Math.abs(f.b)} \\geq 0 \\implies ${f.a}x \\geq ${-f.b} \\]
+                                \\[ ${f.str} \\geq 0 \\implies ${f.a}x \\geq ${-f.b} \\]
                                 \\[ x ${inequalitySymbol} ${f.rootFraction} \\quad ${inequalityText} \\]
                             </div>
-                            Conclusion : <strong>+</strong> si \( x \) est ${f.a > 0 ? "<strong>supérieur</strong>" : "<strong>inférieur</strong>"} à \\( ${f.rootFraction} \\). ${note}
+                            ${finalConclusion}
                         </li>
                     `;
                 });
@@ -626,14 +1047,19 @@
                 
                 solutionOutput.innerHTML = solutionHTML;
                 solutionOutput.style.display = 'block';
-                if (window.MathJax) MathJax.typesetPromise([solutionOutput]).catch((err) => console.log('MathJax Error:', err));
+
+                if (window.MathJax) {
+                    // S'assurer que les contrôles sont mis en place après le rendu MathJax
+                    MathJax.typesetPromise([solutionOutput])
+                        .then(setupRuleControls)
+                        .catch((err) => console.log('MathJax Error:', err));
+                } else {
+                    setupRuleControls();
+                }
             }
 
             generateBtn.addEventListener('click', generateExercise);
             showSolutionBtn.addEventListener('click', showSolution);
-            
-            // Appeler generateExercise au chargement initial
-            generateExercise();
         });
     </script>
 </body>
