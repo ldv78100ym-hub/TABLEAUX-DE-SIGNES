@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Générateur Ultime : Tableaux de Signe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Générateur Ultime : Tableaux de Signe</title>
     
     <script>
         MathJax = {
@@ -24,6 +25,7 @@
             --info-color: #17a2b8;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
+            --copyright-color: #ffc107; /* Couleur pour le bouton Droit d'Auteur */
         }
 
         body {
@@ -84,6 +86,16 @@
         #generate-btn { background-color: var(--success-color); }
         #show-solution-btn { background-color: var(--primary-color); }
         #print-btn { background-color: var(--secondary-color); }
+        
+        /* Style pour le bouton des droits d'auteur en bas de carte */
+        #copyright-btn { 
+            background-color: var(--copyright-color); 
+            color: #343a40; 
+            display: block; /* Prend toute la largeur si on est en mobile */
+            margin: 30px auto 10px auto; /* Centre le bouton et donne de la marge au-dessus */
+            width: fit-content; /* S'adapte à la taille du texte */
+            max-width: 100%;
+        }
 
         #exercise-output {
             font-size: 1.2em; padding: 20px;
@@ -139,6 +151,36 @@
         .sign-table .simple-bar { color: #adb5bd; font-weight: lighter; }
         .interval-header { width: 10%; }
 
+        /* --- MODAL (Droits d'Auteur) --- */
+        .modal {
+            display: none; 
+            position: fixed; z-index: 1000; 
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* 10% du haut et centré */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Largeur de la modale */
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s;
+        }
+        .close-btn {
+            color: #aaa; float: right; font-size: 28px; font-weight: bold;
+        }
+        .close-btn:hover, .close-btn:focus {
+            color: #000; text-decoration: none; cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* --- CSS RESPONSIVE (Mobile & Tablettes) --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -156,6 +198,9 @@
             .controls label { display: none; /* On cache le label "Niveau" pour gagner de la place, le select est explicite */ }
             
             select, button { width: 100%; margin: 0; text-align: center; }
+            
+            /* Le bouton copyright prend 100% de la largeur sur mobile */
+            #copyright-btn { width: 100%; margin: 20px 0 10px 0; }
 
             /* Ajustement des tableaux sur mobile */
             .sign-table { font-size: 0.95em; min-width: 500px; }
@@ -164,6 +209,12 @@
             #exercise-output { font-size: 1.1em; padding: 15px; }
             
             .reminder { font-size: 0.9em; }
+
+            /* Ajustement modale sur mobile */
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+            }
         }
 
         /* MEDIA PRINT */
@@ -171,7 +222,7 @@
             body { background-color: white; padding: 0; font-size: 12pt; }
             .container { max-width: 100%; margin: 0; width: 100%; }
             header h1 { font-size: 1.5em; border-bottom: 2px solid #000; }
-            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn { display: none !important; }
+            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, .modal { display: none !important; }
             .card { box-shadow: none; border: none; padding: 0; margin: 0; }
             #exercise-output { border: 2px solid #000; background-color: white; color: black; margin-bottom: 30px; }
             #solution-output { display: block !important; border: none; border-top: 1px solid #ccc; padding-left: 0; margin-top: 20px; }
@@ -212,7 +263,8 @@
             </div>
             
             <div id="solution-output"></div>
-        </div>
+            
+            <button id="copyright-btn">⚖️ Droits d'Auteur</button> </div>
 
         <div class="reminder">
             <h3>⚠️ Méthode & Rappels</h3>
@@ -223,7 +275,25 @@
             </ul>
         </div>
     </div>
-
+    
+    <div id="copyrightModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>⚖️ Droits d'Auteur et Licence d'Utilisation</h2>
+            <p><strong>Auteur : Yann Merdy (yann.merdy@gmail.com)</strong> - Novembre 2025</p>
+            <hr>
+            <h3>Licence d'Utilisation Non Commerciale</h3>
+            <p>Ce code HTML/CSS/JavaScript ainsi que le contenu généré par l'application ("Générateur de Tableaux de Signe") sont la propriété intellectuelle exclusive de l'auteur, Yann Merdy.</p>
+            
+            <h4>Conditions :</h4>
+            <ul>
+                <li><strong>Utilisation Privée et Éducative (Autorisée) :</strong> Vous êtes autorisé.e à utiliser, copier, modifier et distribuer ce code et son contenu <b>uniquement</b> à des fins <b>personnelles, éducatives et non lucratives</b>.</li>
+                <li><strong>Utilisation Commerciale (Interdite) :</strong> Toute utilisation, distribution, intégration ou reproduction du code ou du contenu (total ou partiel) à des fins <b>commerciales, lucratives ou professionnelles</b> est <b>strictement interdite</b> sans un accord écrit préalable et explicite de l'auteur.</li>
+                <li><strong>Attribution :</strong> Toute reproduction ou modification doit conserver la mention de l'auteur originale (Yann Merdy) et la présente notice de droits d'auteur.</li>
+            </ul>
+            <p style="margin-top: 20px; font-style: italic;">Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
+        </div>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const generateBtn = document.getElementById('generate-btn');
@@ -231,9 +301,31 @@
             const complexitySelect = document.getElementById('complexity');
             const exerciseOutput = document.getElementById('exercise-output');
             const solutionOutput = document.getElementById('solution-output');
+            
+            // Éléments de la Modale NOUVEAUX
+            const copyrightBtn = document.getElementById('copyright-btn');
+            const modal = document.getElementById('copyrightModal');
+            const closeBtn = document.getElementsByClassName('close-btn')[0];
 
             let currentExercise = null;
             const tolerance = 0.0001; 
+
+            // --- Fonctions de la Modale ---
+            copyrightBtn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            closeBtn.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+            // -----------------------------
+
 
             function getRandomInt(min, max) {
                 let num;
@@ -539,6 +631,8 @@
 
             generateBtn.addEventListener('click', generateExercise);
             showSolutionBtn.addEventListener('click', showSolution);
+            
+            // Appeler generateExercise au chargement initial
             generateExercise();
         });
     </script>
