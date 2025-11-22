@@ -17,10 +17,10 @@
     
     <style>
         :root {
-            --primary-color: #007bff; /* Bleu pour les (-) et le code négatif */
+            --primary-color: #007bff; 
             --secondary-color: #6c757d;
             --success-color: #28a745;
-            --danger-color: #dc3545; /* Rouge pour les (+) et les alertes */
+            --danger-color: #dc3545; 
             --info-color: #17a2b8;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -28,6 +28,8 @@
             --rules-color: #17a2b8; 
             --accessibility-color: #3dbe92; 
             --speak-color: #ff7f50; 
+            --graph-color: #6f42c1; 
+            --anim-color: #ff5722; 
         }
 
         body {
@@ -90,6 +92,30 @@
         #rules-btn { background-color: var(--rules-color); } 
         #print-btn { background-color: var(--secondary-color); } 
         
+        /* Style boutons Graphique */
+        .graph-btn { 
+            background-color: var(--graph-color); 
+            margin-top: 10px;
+            font-size: 0.9em;
+            padding: 8px 16px;
+        }
+        
+        /* Petit bouton graphique dans la solution */
+        .mini-graph-btn {
+            background-color: #6610f2;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        /* NOUVEAU BOUTON ANIMATION */
+        .anim-btn {
+            background-color: var(--anim-color);
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
         /* NOUVEAU CONTENEUR POUR LES BOUTONS DU BAS */
         .bottom-buttons { 
             display: flex;
@@ -119,6 +145,44 @@
             padding: 20px; background-color: #fff;
             border: 1px solid #dee2e6;
             border-radius: 5px; display: none; 
+        }
+        
+        /* --- ZONE GRAPHIQUE GLOBALE --- */
+        #graph-container {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        
+        /* --- ZONES GRAPHIQUES FACTEURS --- */
+        .factor-graph-container {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+            border: 1px solid #eee;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 5px;
+        }
+        
+        /* --- NOUVELLE ZONE ANIMATION --- */
+        #animation-container {
+            display: none; /* Caché par défaut */
+            margin-top: 25px;
+            text-align: center;
+            border-top: 2px dashed var(--anim-color);
+            padding-top: 20px;
+            animation: fadeIn 0.5s;
+        }
+
+        canvas {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            max-width: 100%;
+            height: auto;
         }
 
         .math-container {
@@ -347,12 +411,16 @@
             body { background-color: white; padding: 0; font-size: 12pt; }
             .container { max-width: 100%; margin: 0; width: 100%; }
             header h1 { font-size: 1.5em; border-bottom: 2px solid #000; }
-            /* Cacher les éléments interactifs et les boutons. Le contenu des règles (rule-display) est désormais affiché. */
-            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, #rules-btn, .modal, .bottom-buttons, .rule-controls { display: none !important; }
+            /* Cacher les éléments interactifs et les boutons, Y COMPRIS L'ANIMATION */
+            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, #rules-btn, .modal, .bottom-buttons, .rule-controls, .graph-btn, .mini-graph-btn, .anim-btn, #animation-container { display: none !important; }
             
             .card { box-shadow: none; border: none; padding: 0; margin: 0; }
             #exercise-output { border: 2px solid #000; background-color: white; color: black; margin-bottom: 30px; }
             #solution-output { display: block !important; border: none; border-top: 1px solid #ccc; padding-left: 0; margin-top: 20px; }
+            
+            /* Graphique statique en impression */
+            #graph-container { display: block !important; page-break-inside: avoid; }
+            canvas { border: 1px solid #000; }
 
             /* FORCER L'AFFICHAGE DES RÈGLES SPÉCIFIQUES (math et texte) */
             .rule-math-display, .rule-french-display {
@@ -401,7 +469,24 @@
                 <p>Cliquez sur "Nouveau" pour commencer.</p>
             </div>
             
+            <div id="graph-container">
+                <h4>Allure de la courbe globale \( y = E(x) \)</h4>
+                <canvas id="graph-canvas" width="400" height="250"></canvas>
+                <p style="font-size:0.8em; color:#666;"><i>Note : Il n'y a pas d'échelle, l'objectif est de visualiser le signe.</i></p>
+            </div>
+            
             <div id="solution-output"></div>
+            
+            <div id="animation-container">
+                <h4>Animation : La roue sur la courbe</h4>
+                <p>Observez la "trace" colorée laissée par la roue.</p>
+                <canvas id="animation-canvas" width="400" height="250"></canvas>
+                <p style="font-size:0.9em;">
+                    <span style="color: var(--danger-color); font-weight: bold;">Rouge : Au-dessus (+)</span> | 
+                    <span style="color: black; font-weight: bold;">Noir : Nul (0)</span> | 
+                    <span style="color: var(--primary-color); font-weight: bold;">Bleu : En-dessous (-)</span>
+                </p>
+            </div>
             
             <div class="bottom-buttons">
                 <button id="copyright-btn">⚖️ Droits d'Auteur</button>
@@ -502,6 +587,11 @@
         let isMathMode = true;
         const speechSynthesis = window.speechSynthesis;
         let utterance = null; 
+        // Variables globales pour l'animation
+        let animationReqId = null;
+        let animationPath = [];
+        let currentFrame = 0;
+        let persistentArtifacts = []; // Pour stocker les éléments qui doivent rester affichés (lignes, coords)
 
         document.addEventListener('DOMContentLoaded', () => {
             const generateBtn = document.getElementById('generate-btn');
@@ -510,6 +600,14 @@
             const exerciseOutput = document.getElementById('exercise-output');
             const solutionOutput = document.getElementById('solution-output');
             
+            // Eléments Graphique Global
+            const graphContainer = document.getElementById('graph-container');
+            const graphCanvas = document.getElementById('graph-canvas');
+            
+            // Eléments Animation Fin
+            const animationContainer = document.getElementById('animation-container');
+            const animationCanvas = document.getElementById('animation-canvas');
+
             // Éléments des Modales
             const copyrightBtn = document.getElementById('copyright-btn');
             const copyrightModal = document.getElementById('copyrightModal');
@@ -531,17 +629,14 @@
             function openModal(modalElement) {
                 modalElement.style.display = "block";
                 if (modalElement.id === 'rulesModal' && isMathMode && window.MathJax) {
-                    // Forcer le typeset MathJax à chaque ouverture si on est en mode Math
                     MathJax.typesetPromise([modalElement]).catch((err) => console.log('MathJax Error in Modal:', err));
                 }
             }
 
             function closeModal(modalElement) {
                 modalElement.style.display = "none";
-                // Arrêter la lecture si elle est en cours
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
-                    // Réinitialiser le bouton de lecture de la MODALE RÈGLES
                     if (speakBtn.textContent !== '🔊 Lire à haute voix') {
                          speakBtn.textContent = '🔊 Lire à haute voix'; 
                     }
@@ -568,7 +663,6 @@
             // --- Fonction : Bascule de Langue pour la MODALE RÈGLES ---
             function toggleLanguage() {
                 isMathMode = !isMathMode;
-                
                 if (isMathMode) {
                     toggleLangBtn.textContent = '🇫🇷 Version Texte';
                     mathRules.forEach(el => el.style.display = 'block');
@@ -590,7 +684,6 @@
                 }
 
                 if (speechSynthesis.speaking) {
-                    // Si ça parle, on arrête
                     speechSynthesis.cancel();
                     speakBtn.textContent = '🔊 Lire à haute voix';
                     return;
@@ -604,7 +697,6 @@
                     let titleText = titleElement ? titleElement.textContent.replace(':', '').trim() : `Règle numéro ${index + 1}`;
                     const frenchRuleElement = li.querySelector('.french-rule p');
                     let ruleBodyText = frenchRuleElement ? frenchRuleElement.innerText || frenchRuleElement.textContent : "";
-                    
                     ruleBodyText = ruleBodyText.replace(/\*/g, '').replace(/\s+/g, ' ').trim();
 
                     if (ruleBodyText) {
@@ -622,21 +714,17 @@
 
                 if (utterances.length > 0) {
                     speakBtn.textContent = '🛑 Arrêter la lecture';
-                    
                     utterances[utterances.length - 1].onend = function() {
                         speakBtn.textContent = '🔊 Lire à haute voix';
                     };
-                    
                     utterances.forEach(u => speechSynthesis.speak(u));
                 } else {
                     alert("Aucun texte de règle n'est disponible pour la lecture.");
                 }
             }
             speakBtn.addEventListener('click', speakText);
+            
             // ------------------------------------------------
-
-
-            // --- Fonctions Mathématiques & Génération ---
 
             function getRandomInt(min, max) {
                 let num;
@@ -690,10 +778,507 @@
                 if (Math.abs(value) < tolerance) return 0;
                 return Math.sign(value);
             }
+            
+            // --- FONCTION POUR LE GRAPHIQUE GLOBAL ET L'ANIMATION ---
+            function evaluateExpression(factors, x) {
+                let numerator = 1;
+                let denominator = 1;
+                for (let f of factors) {
+                    let val = f.a * x + f.b;
+                    if (f.isQuotient) {
+                        if (Math.abs(val) < 0.0000001) return Infinity * Math.sign(numerator) * Math.sign(val); 
+                        denominator *= val;
+                    } else {
+                        numerator *= val;
+                    }
+                }
+                if (denominator === 0) return Infinity;
+                return numerator / denominator;
+            }
+
+            // --- FONCTIONS D'ANIMATION ---
+            window.toggleAnimation = function() {
+                 // Stop any existing animation first
+                if (animationReqId) {
+                    cancelAnimationFrame(animationReqId);
+                    animationReqId = null;
+                }
+
+                if (animationContainer.style.display === 'block') {
+                    animationContainer.style.display = 'none';
+                } else {
+                    animationContainer.style.display = 'block';
+                    startAnimation();
+                    animationContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            function startAnimation() {
+                if (!currentExercise || !currentExercise.factors) return;
+                const ctx = animationCanvas.getContext('2d');
+                const width = animationCanvas.width;
+                const height = animationCanvas.height;
+                
+                // --- 1. Determine Scales ---
+                const roots = currentExercise.factors.map(f => f.root);
+                let minRoot = Math.min(...roots);
+                let maxRoot = Math.max(...roots);
+                if (roots.length === 0) { minRoot = -5; maxRoot = 5; }
+                const marginX = Math.max(2, (maxRoot - minRoot) * 0.2);
+                const xMin = minRoot - marginX;
+                const xMax = maxRoot + marginX;
+                const xScale = width / (xMax - xMin);
+                const toPixelX = (val) => (val - xMin) * xScale;
+
+                let yMin = Infinity, yMax = -Infinity;
+                const steps = 200;
+                 for (let i = 0; i <= steps; i++) {
+                    const x = xMin + (i / steps) * (xMax - xMin);
+                    const y = evaluateExpression(currentExercise.factors, x);
+                    if (isFinite(y) && Math.abs(y) < 10000) { 
+                        if (y < yMin) yMin = y;
+                        if (y > yMax) yMax = y;
+                    }
+                }
+                if (yMax === yMin) { yMax += 5; yMin -= 5; }
+                if (yMin > 0) yMin = -yMax * 0.1; 
+                if (yMax < 0) yMax = -yMin * 0.1; 
+                const rangeY = yMax - yMin;
+                yMin -= rangeY * 0.1; yMax += rangeY * 0.1;
+                if (yMin > 0) yMin = -1; if (yMax < 0) yMax = 1;
+                const yScale = height / (yMax - yMin);
+                const toPixelY = (val) => height - (val - yMin) * yScale;
+
+                // --- 2. Pre-calculate Animation Path ---
+                animationPath = [];
+                persistentArtifacts = []; // Reset artifacts
+                
+                for (let px = 0; px < width; px++) {
+                    const logicalX = xMin + (px / width) * (xMax - xMin);
+                    const logicalY = evaluateExpression(currentExercise.factors, logicalX);
+                    
+                    if (isFinite(logicalY) && Math.abs(logicalY) < 50000) {
+                         let point = {
+                            px: px,
+                            py: toPixelY(logicalY),
+                            logicalX: logicalX,
+                            logicalY: logicalY,
+                            pauseFrames: 0,
+                            isRoot: false,
+                            rootText: ""
+                        };
+                        
+                        // Détection de croisement de l'axe (changement de signe)
+                        if (animationPath.length > 0) {
+                            let prevPoint = animationPath[animationPath.length - 1];
+                            let s1 = Math.sign(prevPoint.logicalY);
+                            let s2 = Math.sign(logicalY);
+                            
+                            // Si signe différent (et pas saut asymptote)
+                            if (s1 !== s2 && Math.abs(prevPoint.py - point.py) < height/2) {
+                                point.pauseFrames = 80;
+                                point.isRoot = true;
+                                // Trouver la racine la plus proche dans la liste des facteurs pour le texte
+                                let nearestRootVal = roots.reduce((prev, curr) => Math.abs(curr - logicalX) < Math.abs(prev - logicalX) ? curr : prev);
+                                // Formater le texte
+                                point.rootText = simplifyFraction(nearestRootVal);
+                                // Nettoyage basique pour affichage canvas
+                                point.rootText = point.rootText.replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
+                            }
+                        }
+                        animationPath.push(point);
+                    }
+                }
+                
+                currentFrame = 0;
+                
+                // --- 3. Start Animation Loop ---
+                runAnimationLoop(ctx, width, height, toPixelY);
+            }
+
+            function runAnimationLoop(ctx, width, height, toPixelY) {
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+
+                // --- 1. Draw Static Background (Axes) ---
+                ctx.beginPath(); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+                const y0 = toPixelY(0);
+                if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); }
+                ctx.stroke();
+                
+                // --- 2. Draw Curve Progressively (Impregnation) ---
+                // On dessine toute la courbe jusqu'au point actuel avec les couleurs
+                // On dessine aussi la courbe future en gris clair
+                
+                // A. Courbe Future (Gris)
+                ctx.beginPath(); ctx.strokeStyle = '#eee'; ctx.lineWidth = 2;
+                let startedFuture = false;
+                for(let i = currentFrame; i < animationPath.length; i++) {
+                     const pt = animationPath[i];
+                     if (!startedFuture) { ctx.moveTo(pt.px, pt.py); startedFuture = true; }
+                     else if (i > 0 && Math.abs(pt.py - animationPath[i-1].py) > height/2) {
+                          ctx.moveTo(pt.px, pt.py);
+                     } else {
+                          ctx.lineTo(pt.px, pt.py);
+                     }
+                }
+                ctx.stroke();
+
+                // B. Courbe Passée (Colorée) - Dessin segment par segment pour gérer les changements de couleur
+                // Optimisation : on peut dessiner des paths contigus de même couleur
+                if (currentFrame > 0) {
+                    ctx.lineWidth = 3;
+                    for(let i = 1; i <= Math.min(currentFrame, animationPath.length - 1); i++) {
+                        const pt = animationPath[i];
+                        const prevPt = animationPath[i-1];
+                        
+                        // Saut d'asymptote ?
+                        if (Math.abs(pt.py - prevPt.py) > height/2) continue;
+
+                        ctx.beginPath();
+                        ctx.moveTo(prevPt.px, prevPt.py);
+                        ctx.lineTo(pt.px, pt.py);
+                        
+                        // Couleur basée sur Y
+                        if (pt.logicalY > 0) ctx.strokeStyle = '#dc3545'; // Rouge
+                        else ctx.strokeStyle = '#007bff'; // Bleu
+                        
+                        ctx.stroke();
+                    }
+                }
+                
+                // --- 3. Draw Axis Impregnation (Black line on X axis) ---
+                if (currentFrame > 0 && y0 >= 0 && y0 <= height) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(0, y0);
+                    // On dessine jusqu'au x actuel
+                    const currentXPx = animationPath[Math.min(currentFrame, animationPath.length-1)].px;
+                    ctx.lineTo(currentXPx, y0);
+                    ctx.stroke();
+                }
+
+
+                // --- 4. Draw Persistent Artifacts (Les racines déjà passées) ---
+                ctx.setLineDash([5, 5]); // Pointillés
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.fillStyle = 'black';
+                ctx.textAlign = "center";
+                
+                for (let art of persistentArtifacts) {
+                    // Ligne verticale
+                    ctx.beginPath();
+                    ctx.moveTo(art.px, 0);
+                    ctx.lineTo(art.px, height);
+                    ctx.stroke();
+                    
+                    // Coordonnées vectorielles (x / 0)
+                    let textY = y0 + 30; 
+                    if (textY > height - 30) textY = height - 10;
+                    if (textY < 40) textY = 40;
+
+                    ctx.font = "24px serif";
+                    ctx.fillText("(", art.px - 12, textY);
+                    ctx.fillText(")", art.px + 12, textY);
+                    ctx.font = "12px Arial";
+                    ctx.fillText(art.text, art.px, textY - 8);
+                    ctx.fillText("0", art.px, textY + 10);
+                }
+                ctx.setLineDash([]); // Reset pointillés
+
+                // --- 5. Draw Moving Elements ---
+                if (currentFrame < animationPath.length) {
+                    const point = animationPath[currentFrame];
+                    
+                    let wheelColor = 'black'; 
+                    let signText = "";
+                    const epsilon = 0.05; 
+
+                    if (point.pauseFrames > 0) {
+                        wheelColor = 'black'; // Pause = Noir
+                        signText = ""; // Pas de signe quand c'est 0
+                    } else {
+                        if (point.logicalY > epsilon) {
+                            wheelColor = '#dc3545'; signText = "+";
+                        } else if (point.logicalY < -epsilon) {
+                            wheelColor = '#007bff'; signText = "-";
+                        }
+                    }
+
+                    // A. Projeté Orthogonal sur l'axe X
+                    if (y0 >= 0 && y0 <= height) {
+                        ctx.beginPath();
+                        ctx.arc(point.px, y0, 5, 0, 2 * Math.PI);
+                        ctx.fillStyle = 'black';
+                        ctx.fill();
+                    }
+
+                    // B. La Roue
+                    ctx.beginPath();
+                    ctx.arc(point.px, point.py, 10, 0, 2 * Math.PI); 
+                    ctx.fillStyle = wheelColor;
+                    ctx.fill();
+                    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke(); 
+                    
+                    // C. Signe Flottant
+                    if (signText !== "") {
+                        ctx.font = "bold 24px Arial";
+                        ctx.fillStyle = wheelColor;
+                        ctx.textAlign = "center";
+                        // Flotter 25px au-dessus de la roue
+                        ctx.fillText(signText, point.px, point.py - 20);
+                    }
+
+                    // --- Gestion de la Pause et Ajout d'Artefacts ---
+                    if (point.pauseFrames > 0) {
+                        const alreadyExists = persistentArtifacts.some(a => Math.abs(a.px - point.px) < 2);
+                        if (!alreadyExists) {
+                            persistentArtifacts.push({
+                                px: point.px,
+                                text: point.rootText
+                            });
+                        }
+                        point.pauseFrames--;
+                    } else {
+                        currentFrame++;
+                    }
+
+                    animationReqId = requestAnimationFrame(() => runAnimationLoop(ctx, width, height, toPixelY));
+                } else {
+                    animationReqId = null;
+                }
+            }
+
+
+            // --- FONCTION GRAPHIQUE GLOBAL (STATIQUE) ---
+            function drawGlobalGraph() {
+                if (!currentExercise || !currentExercise.factors) return;
+                const ctx = graphCanvas.getContext('2d');
+                const width = graphCanvas.width;
+                const height = graphCanvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                const roots = currentExercise.factors.map(f => f.root);
+                let minRoot = Math.min(...roots);
+                let maxRoot = Math.max(...roots);
+                if (roots.length === 0) { minRoot = -5; maxRoot = 5; }
+                
+                const marginX = Math.max(2, (maxRoot - minRoot) * 0.2);
+                const xMin = minRoot - marginX;
+                const xMax = maxRoot + marginX;
+                const xScale = width / (xMax - xMin);
+                const toPixelX = (val) => (val - xMin) * xScale;
+                
+                let yMin = Infinity, yMax = -Infinity;
+                const steps = 100; 
+                for (let i = 0; i <= steps; i++) {
+                    const x = xMin + (i / steps) * (xMax - xMin);
+                    const y = evaluateExpression(currentExercise.factors, x);
+                    if (isFinite(y) && Math.abs(y) < 10000) { 
+                        if (y < yMin) yMin = y;
+                        if (y > yMax) yMax = y;
+                    }
+                }
+                if (yMax === yMin) { yMax += 5; yMin -= 5; }
+                if (yMin > 0) yMin = -yMax * 0.1; 
+                if (yMax < 0) yMax = -yMin * 0.1; 
+                
+                const rangeY = yMax - yMin;
+                yMin -= rangeY * 0.1;
+                yMax += rangeY * 0.1;
+                
+                if (yMin > 0) yMin = -1;
+                if (yMax < 0) yMax = 1;
+                
+                const yScale = height / (yMax - yMin);
+                const toPixelY = (val) => height - (val - yMin) * yScale;
+                
+                // AXES
+                ctx.beginPath(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+                const y0 = toPixelY(0);
+                if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); }
+                const x0 = toPixelX(0);
+                if (x0 >= 0 && x0 <= width) { ctx.moveTo(x0, 0); ctx.lineTo(x0, height); }
+                ctx.stroke();
+                
+                // COURBE
+                ctx.beginPath(); ctx.strokeStyle = '#6f42c1'; ctx.lineWidth = 2;
+                let started = false;
+                for (let px = 0; px < width; px++) {
+                    const logicalX = xMin + (px / width) * (xMax - xMin);
+                    const logicalY = evaluateExpression(currentExercise.factors, logicalX);
+                    const py = toPixelY(logicalY);
+                    const isOut = Math.abs(logicalY) > 100000; 
+                    
+                    if (isOut) { started = false; continue; }
+                    if (!started) { ctx.moveTo(px, py); started = true; } 
+                    else {
+                        const prevPy = toPixelY(evaluateExpression(currentExercise.factors, xMin + ((px - 1) / width) * (xMax - xMin)));
+                        if (Math.abs(py - prevPy) > height) { ctx.moveTo(px, py); } else { ctx.lineTo(px, py); }
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            function toggleGraph() {
+                if (graphContainer.style.display === 'block') {
+                    graphContainer.style.display = 'none';
+                } else {
+                    graphContainer.style.display = 'block';
+                    drawGlobalGraph();
+                    graphContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            
+            // --- FONCTIONS POUR LES GRAPHIQUES INDIVIDUELS (FACTEURS) ---
+            
+            window.toggleFactorGraph = function(containerId, factorIndex) {
+                const container = document.getElementById(containerId);
+                const canvas = container.querySelector('canvas');
+                
+                // CORRECTION : Vérifier si ce n'est PAS block
+                if (container.style.display === 'block') {
+                    container.style.display = 'none';
+                } else {
+                    container.style.display = 'block';
+                    // Dessiner le graphe de la droite
+                    drawFactorGraph(canvas, factorIndex);
+                }
+            };
+            
+            // Fonction pour dessiner une accolade horizontale sous l'axe
+            function drawCurlyBrace(ctx, x1, x2, y, color, text) {
+                const w = x2 - x1;
+                if (w < 10) return; // Trop petit pour dessiner
+                
+                const h = 10; // Profondeur de l'accolade
+                const cx = x1 + w / 2;
+                const cy = y + h; // Y de la pointe
+                
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.lineWidth = 2;
+                
+                // Dessin de l'accolade (style "Moustache")
+                ctx.moveTo(x1, y);
+                // Courbe gauche vers le bas
+                ctx.bezierCurveTo(x1, y + 5, cx - w/4, cy, cx, cy);
+                // Courbe droite vers le haut
+                ctx.bezierCurveTo(cx + w/4, cy, x2, y + 5, x2, y);
+                
+                ctx.stroke();
+                
+                // Texte sous l'accolade
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(text, cx, cy + 18);
+            }
+
+            function drawFactorGraph(canvas, factorIndex) {
+                const factor = currentExercise.factors[factorIndex];
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                // Définir une fenêtre centrée sur la racine
+                // X de [root - 4, root + 4]
+                const xMin = factor.root - 4;
+                const xMax = factor.root + 4;
+                
+                // Pour Y, on prend une échelle relative à 'a'
+                const absA = Math.abs(factor.a) || 1;
+                const yLimit = 4 * absA;
+                const yMin = -yLimit;
+                const yMax = yLimit;
+                
+                const xScale = width / (xMax - xMin);
+                const yScale = height / (yMax - yMin);
+                
+                const toPixelX = (val) => (val - xMin) * xScale;
+                const toPixelY = (val) => height - (val - yMin) * yScale;
+                
+                // --- AXES ---
+                ctx.beginPath(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+                const py0 = toPixelY(0);
+                ctx.moveTo(0, py0); ctx.lineTo(width, py0);
+                const px0 = toPixelX(0);
+                if (px0 >= 0 && px0 <= width) { ctx.moveTo(px0, 0); ctx.lineTo(px0, height); }
+                ctx.stroke();
+                
+                // --- LA DROITE EN COULEURS ---
+                const pRootX = toPixelX(factor.root);
+                const pRootY = toPixelY(0);
+                
+                const yAtMin = factor.a * xMin + factor.b;
+                const yAtMax = factor.a * xMax + factor.b;
+                const pMinY = toPixelY(yAtMin);
+                const pMaxY = toPixelY(yAtMax);
+                
+                ctx.lineWidth = 3;
+                
+                // Segment de Gauche (0 à pRootX)
+                ctx.beginPath();
+                ctx.moveTo(0, pMinY);
+                ctx.lineTo(pRootX, pRootY);
+                const leftColor = factor.a > 0 ? '#007bff' : '#dc3545'; // Bleu si monte (negatif à gauche), Rouge si descend (positif à gauche)
+                ctx.strokeStyle = leftColor;
+                ctx.stroke();
+                
+                // Segment de Droite (pRootX à width)
+                ctx.beginPath();
+                ctx.moveTo(pRootX, pRootY);
+                ctx.lineTo(width, pMaxY);
+                const rightColor = factor.a > 0 ? '#dc3545' : '#007bff'; // Rouge si monte (positif à droite), Bleu si descend (negatif à droite)
+                ctx.strokeStyle = rightColor;
+                ctx.stroke();
+                
+                // --- GROS POINT ---
+                ctx.beginPath();
+                ctx.arc(pRootX, pRootY, 6, 0, 2 * Math.PI);
+                ctx.fillStyle = 'black';
+                ctx.fill();
+                
+                // --- LIBELLÉ VECTORIEL ---
+                ctx.fillStyle = 'black';
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                const textX = pRootX + 15; 
+                const textY = pRootY + 30;
+                
+                let textVal = factor.rootFraction;
+                textVal = textVal.replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
+                
+                ctx.font = "30px serif";
+                ctx.fillText("(", textX - 15, textY + 5);
+                ctx.fillText(")", textX + 15, textY + 5);
+                ctx.font = "12px Arial";
+                ctx.fillText(textVal, textX, textY - 8);
+                ctx.fillText("0", textX, textY + 12);
+
+                // --- ACCOLADES SOUS L'AXE ---
+                // On commence les accolades un peu plus bas que le libellé du vecteur
+                const braceY = pRootY + 55; 
+                
+                // Accolade Gauche (0 à pRootX)
+                // GAUCHE = x < Racine
+                drawCurlyBrace(ctx, 0, pRootX, braceY, leftColor, "x < " + textVal);
+
+                // Accolade Droite (pRootX à width)
+                // DROITE = x > Racine
+                drawCurlyBrace(ctx, pRootX, width, braceY, rightColor, "x > " + textVal);
+            }
+
+            // --------------------------------------------
+
 
             function generateSignTableHTML(factors) {
                 const allRoots = factors.map(f => f.root);
-                // Utilisation de toFixed(5) pour gérer la précision des floats avant de trier
                 const uniqueSortedRoots = [...new Set(allRoots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b); 
 
                 let tableHTML = `<table class="sign-table"><thead>`;
@@ -720,7 +1305,6 @@
                         if (r_prev === -Infinity) testPointInterval = r_current - 1;
                         else testPointInterval = (r_prev + r_current) / 2;
                         
-                        // APPLICATION DES COULEURS
                         const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? 
                             `<span class="sign-plus">+</span>` : 
                             `<span class="sign-minus">-</span>`;
@@ -740,7 +1324,6 @@
                     
                     const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
                     const testPointLast = r_last + 1;
-                    // APPLICATION DES COULEURS
                     const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? 
                         `<span class="sign-plus">+</span>` : 
                         `<span class="sign-minus">-</span>`;
@@ -759,7 +1342,6 @@
                     
                     let productSign = 1;
                     factors.forEach(factor => productSign *= getFactorSignValue(factor, testPoint));
-                    // APPLICATION DES COULEURS
                     tableHTML += `<td>${productSign >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td>`;
 
                     const isValueInterdite = factors.some(f => f.isQuotient && Math.abs(f.root - r_current) < tolerance); 
@@ -775,15 +1357,18 @@
                 const testPointLast = r_last + 1;
                 let productSignLast = 1;
                 factors.forEach(factor => productSignLast *= getFactorSignValue(factor, testPointLast));
-                // APPLICATION DES COULEURS
                 tableHTML += `<td>${productSignLast >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td><td></td></tr></tbody></table>`; 
                 return tableHTML;
             }
 
             function generateExercise() {
-                solutionOutput.style.display = 'none'; 
+                solutionOutput.style.display = 'none';
+                graphContainer.style.display = 'none'; 
+                // Cacher le conteneur d'animation si on génère un nouvel exercice
+                animationContainer.style.display = 'none';
+                if (animationReqId) { cancelAnimationFrame(animationReqId); animationReqId = null; }
+                
                 let factors = [];
-                let expressionStr = "";
                 let displayExpression = ""; 
                 let factorizationStep = null; 
                 let complexity = parseInt(complexitySelect.value);
@@ -824,9 +1409,7 @@
                         f.root = -f.b/f.a;
                         f.rootFraction = simplifyFraction(-f.b, f.a);
                     });
-
                     factors.push(f1, f2);
-
                     factorizationStep = {
                         initial: displayExpression,
                         identity: `A^2 - B^2 = (A-B)(A+B)`,
@@ -836,16 +1419,13 @@
                 }
                 else if (complexity === 6) {
                     const variant = Math.random() < 0.5 ? 'fact_quotient' : 'multi_quotient';
-
                     if (variant === 'fact_quotient') {
                         const k_base = getRandomInt(2, 6);
                         const k_squared = k_base * k_base;
                         const baseFactor = generateFactor(minA, maxA, minB, maxB);
                         const denomFactor = generateFactor(minA, maxA, minB, maxB);
                         denomFactor.isQuotient = true;
-
                         displayExpression = `\\dfrac{(${baseFactor.str})^2 - ${k_squared}}{${denomFactor.str}}`;
-
                         const f1 = { a: baseFactor.a, b: baseFactor.b - k_base, str: "", root: 0, rootFraction: "" };
                         const f2 = { a: baseFactor.a, b: baseFactor.b + k_base, str: "", root: 0, rootFraction: "" };
                          [f1, f2].forEach(f => {
@@ -853,21 +1433,17 @@
                             f.root = -f.b/f.a;
                             f.rootFraction = simplifyFraction(-f.b, f.a);
                         });
-
                         factors.push(f1, f2, denomFactor);
-
                         factorizationStep = {
                             initial: `(${baseFactor.str})^2 - ${k_squared}`,
                             identity: `A^2 - B^2 = (A-B)(A+B)`,
                             step1: `\\text{Numérateur : } A = (${baseFactor.str}), B = ${k_base}`,
                             final: `E(x) = \\dfrac{(${f1.str})(${f2.str})}{${denomFactor.str}}`
                         };
-
                     } else {
                         const f1 = generateFactor(minA, maxA, minB, maxB);
                         const f2 = generateFactor(minA, maxA, minB, maxB);
                         const f3 = generateFactor(minA, maxA, minB, maxB);
-
                         if (Math.random() < 0.5) {
                             f3.isQuotient = true;
                             displayExpression = `\\dfrac{(${f1.str})(${f2.str})}{${f3.str}}`;
@@ -891,13 +1467,18 @@
                 if (complexity >= 3 && complexity !== 5) énoncé += ` (<span style="color:var(--danger-color); font-weight:bold;">Attention aux valeurs interdites !</span>)`;
                 if (complexity === 5 || complexity === 6) énoncé += ` <p><i><b>Regardez</b> bien si une <b><u>factorisation</u></b> est nécessaire</i></p>`;
 
-                exerciseOutput.innerHTML = `<p>${énoncé}</p><div class="math-container">\\[ E(x) = ${displayExpression} \\]</div>`;
+                exerciseOutput.innerHTML = `
+                    <p>${énoncé}</p>
+                    <div class="math-container">\\[ E(x) = ${displayExpression} \\]</div>
+                    <button id="graph-trigger-btn" class="graph-btn">📈 Graphique Global</button>
+                `;
+                
+                document.getElementById('graph-trigger-btn').addEventListener('click', toggleGraph);
+
                 if (window.MathJax) MathJax.typesetPromise([exerciseOutput]).catch((err) => console.log('MathJax Error:', err));
             }
 
-            // --- NOUVELLE FONCTION POUR GÉRER LES BOUTONS DE RÈGLE DE LA SOLUTION ---
             function setupRuleControls() {
-                // Arrêter la lecture en cours au cas où un autre bouton "Voix" est cliqué
                 speechSynthesis.cancel();
                 document.querySelectorAll('.rule-speak-btn').forEach(btn => btn.textContent = '🔊 Voix');
 
@@ -905,11 +1486,7 @@
                     button.onclick = function() {
                         const factorId = this.dataset.factorId;
                         const targetMode = this.dataset.target;
-                        
-                        // Cible l'élément d'affichage de la règle pour ce facteur et ce mode
                         const targetDisplay = document.querySelector(`.rule-display[data-factor-id="${factorId}"][data-mode="${targetMode}"]`);
-
-                        // Cacher tous les affichages de règles pour ce facteur et arrêter la lecture
                         document.querySelectorAll(`.rule-display[data-factor-id="${factorId}"]`).forEach(el => {
                             if (el !== targetDisplay) {
                                 el.style.display = 'none';
@@ -918,13 +1495,10 @@
                         speechSynthesis.cancel();
                         document.querySelectorAll('.rule-speak-btn').forEach(btn => btn.textContent = '🔊 Voix');
 
-
-                        // Basculer l'affichage cible
                         if (targetDisplay.style.display === 'block') {
                             targetDisplay.style.display = 'none';
                         } else {
                             targetDisplay.style.display = 'block';
-                            // Typeset MathJax si nécessaire
                             if (targetMode === 'math' && window.MathJax) {
                                 MathJax.typesetPromise([targetDisplay]).catch((err) => console.log('MathJax Error in rule display:', err));
                             }
@@ -935,46 +1509,44 @@
                 document.querySelectorAll('.rule-speak-btn').forEach(button => {
                     button.onclick = function() {
                         const textToSpeak = this.dataset.text;
-                        
-                        // Arrêter la lecture en cours, y compris celle du bouton principal de la modale
                         speechSynthesis.cancel();
                         document.querySelectorAll('.rule-speak-btn').forEach(btn => {
-                            if (btn !== this) {
-                                btn.textContent = '🔊 Voix';
-                            }
+                            if (btn !== this) { btn.textContent = '🔊 Voix'; }
                         });
                         if (document.getElementById('speak-btn').textContent !== '🔊 Lire à haute voix') {
                              document.getElementById('speak-btn').textContent = '🔊 Lire à haute voix'; 
                         }
 
-
                         if (this.textContent === '🛑 Arrêter') {
-                            // Cliqué pour arrêter
                             this.textContent = '🔊 Voix';
                             return;
                         }
 
-                        // Commencer la nouvelle lecture
                         utterance = new SpeechSynthesisUtterance(textToSpeak);
                         utterance.lang = 'fr-FR';
                         utterance.rate = 0.95; 
-
                         const btn = this;
                         btn.textContent = '🛑 Arrêter';
-
-                        utterance.onend = function() {
-                            btn.textContent = '🔊 Voix';
-                        };
-                        
+                        utterance.onend = function() { btn.textContent = '🔊 Voix'; };
                         speechSynthesis.speak(utterance);
                     };
                 });
             }
-            // --- FIN NOUVELLE FONCTION ---
 
             function showSolution() {
                 if (!currentExercise) { alert("Générez un exercice d'abord."); return; }
+                
+                // Stop animation if it's running when we click "Solution" again
+                if (animationReqId) { cancelAnimationFrame(animationReqId); animationReqId = null; }
+                animationContainer.style.display = 'none';
+
                 const { expressionDisplay, factors, complexity, factorizationStep } = currentExercise;
+                
+                // Update Animation Title
+                const animContainer = document.getElementById('animation-container');
+                const animH4 = animContainer.querySelector('h4');
+                animH4.innerHTML = `Animation : La roue sur la courbe \\( y = ${expressionDisplay} \\)`;
+
                 let roots = factors.map(f => f.root);
                 
                 let solutionHTML = `<p>Étude de : \\( E(x) = ${expressionDisplay} \\)</p>`;
@@ -1003,7 +1575,6 @@
                     let note = "";
                     if (f.isQuotient) note = "<br><span style='color:var(--danger-color)'><b>Attention : Racine du dénominateur = Valeur Interdite (||).</b></span>";
 
-                    // Contenu de la règle pour l'affichage/la voix
                     const ruleMath = isPositiveDivisor 
                         ? `\\dfrac{A}{c} < \\dfrac{B}{c} \\quad \\text{si} \\quad c > 0` 
                         : `\\dfrac{A}{c} > \\dfrac{B}{c} \\quad \\text{si} \\quad c < 0 \\text{ (Inversion !)}`
@@ -1011,18 +1582,17 @@
                         ? "Règle : Pour isoler x, on divise par le coefficient A = " + f.a + ". Puisque A est positif, l'ordre de l'inégalité est conservé." 
                         : "Règle : Pour isoler x, on divise par le coefficient A = " + f.a + ". Puisque A est négatif, il faut obligatoirement inverser le sens de l'inégalité."
                     
-                    // Gestion des couleurs pour la conclusion
                     const comparisonTextColored = isPositiveDivisor 
                         ? `<span style="color:var(--danger-color); font-weight:bold;">supérieur</span>` 
                         : `<span style="color:var(--primary-color); font-weight:bold;">inférieur</span>`;
                         
                     const plusSignColored = `<span style="color:var(--danger-color);"><b>+</b></span>`;
-                    
-                    // NOUVELLE PHRASE DE CONCLUSION
                     const finalConclusion = `Conclusion : Le <strong>signe</strong> de \\(${f.str}\\) est ${plusSignColored} si \\( x \\) est ${comparisonTextColored} à \\( ${f.rootFraction} \\). ${note}`;
-                    
                     const encodedRuleFrench = ruleFrench.replace(/"/g, '&quot;');
 
+                    // --- AJOUT DU BOUTON GRAPHIQUE SPECIFIQUE ICI ---
+                    const canvasId = `canvas-factor-${index}`;
+                    const containerId = `container-factor-${index}`;
 
                     solutionHTML += `
                         <li id="factor-${index}">
@@ -1046,6 +1616,14 @@
                                 \\[ ${f.str} \\geq 0 \\implies ${f.a}x \\geq ${-f.b} \\]
                                 \\[ x ${inequalitySymbol} ${f.rootFraction} \\quad ${inequalityText} \\]
                             </div>
+                            
+                            <button class="mini-graph-btn" onclick="toggleFactorGraph('${containerId}', ${index})">📈 Voir la Droite</button>
+                            <div id="${containerId}" class="factor-graph-container">
+                                <canvas id="${canvasId}" width="300" height="200"></canvas>
+                                <p style="font-size:0.8em; color:#666;">Rouge : Positif (Dessus) | Bleu : Négatif (Dessous)</p>
+                            </div>
+                            <br><br>
+
                             ${finalConclusion}
                         </li>
                     `;
@@ -1058,12 +1636,14 @@
                                  <p>Racines ordonnées : ${uniqueSortedRoots.map(r => `\\( ${factors.find(f => Math.abs(f.root - r) < tolerance).rootFraction} \\)`).join(' < ')}.</p>
                                  <div class="math-container">${generateSignTableHTML(factors)}</div>`;
                 
+                // Ajout du bouton pour l'animation finale
+                solutionHTML += `<button class="anim-btn" onclick="toggleAnimation()">🎬 Lancer l'Animation de la Roue</button>`;
+
                 solutionOutput.innerHTML = solutionHTML;
                 solutionOutput.style.display = 'block';
 
                 if (window.MathJax) {
-                    // S'assurer que les contrôles sont mis en place après le rendu MathJax
-                    MathJax.typesetPromise([solutionOutput])
+                    MathJax.typesetPromise([solutionOutput, document.getElementById('animation-container')])
                         .then(setupRuleControls)
                         .catch((err) => console.log('MathJax Error:', err));
                 } else {
