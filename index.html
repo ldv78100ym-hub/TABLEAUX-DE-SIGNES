@@ -53,6 +53,21 @@
             font-size: 2rem; 
         }
 
+        /* --- NOUVEAU STYLE POUR LE BOUTON DATE --- */
+        #date-btn {
+            background-color: #d1ecf1; /* Fond bleu clair */
+            color: #0c5460; /* Texte foncé pour lisibilité */
+            border: 1px solid #bee5eb;
+            cursor: default; /* Pas de main au survol */
+            font-size: 0.9rem;
+            padding: 8px 20px;
+            margin-top: 10px;
+            box-shadow: none;
+            width: auto;
+            display: inline-block;
+        }
+        #date-btn:active { transform: none; } /* Pas d'effet d'enfoncement */
+
         .card {
             background-color: var(--card-bg);
             border-radius: 8px;
@@ -522,7 +537,7 @@
             #print-btn, #copyright-btn, #rules-btn, .modal, 
             .bottom-buttons, .rule-controls, .graph-btn, 
             .mini-graph-btn, .anim-btn, #animation-container, 
-            .factor-graph-container, .detail-btn { 
+            .factor-graph-container, .detail-btn, #date-btn { 
                 display: none !important; 
             }
 
@@ -640,7 +655,10 @@
             <h1>🔢 Générateur de Tableaux de Signe</h1>
             <p>Du niveau débutant.e au niveau Expert.e</p>
 	        <p><b>Auteur : Yann Merdy (yann.merdy@gmail.com)</b></p>
-            <center>Novembre 2025</center>
+            
+            <div style="text-align: center;">
+                <button id="date-btn">MAJ : 23 novembre 2025</button>
+            </div>
         </header>
 
         <div class="card">
