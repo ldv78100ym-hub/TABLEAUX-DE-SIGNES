@@ -30,6 +30,7 @@
             --speak-color: #ff7f50; 
             --graph-color: #6f42c1; 
             --anim-color: #ff5722; 
+            --detail-color: #e83e8c; 
         }
 
         body {
@@ -108,15 +109,25 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
+
+        /* BOUTON DÉTAILS */
+        .detail-btn {
+            background-color: var(--detail-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-top: 5px;
+            margin-left: 5px;
+        }
         
-        /* NOUVEAU BOUTON ANIMATION */
+        /* BOUTON ANIMATION */
         .anim-btn {
             background-color: var(--anim-color);
             margin-top: 20px;
             font-size: 1.1em;
         }
 
-        /* NOUVEAU CONTENEUR POUR LES BOUTONS DU BAS */
+        /* CONTENEUR POUR LES BOUTONS DU BAS */
         .bottom-buttons { 
             display: flex;
             justify-content: center;
@@ -168,7 +179,7 @@
         
         /* --- NOUVELLE ZONE ANIMATION --- */
         #animation-container {
-            display: none; /* Caché par défaut */
+            display: none;
             margin-top: 25px;
             text-align: center;
             border-top: 2px dashed var(--anim-color);
@@ -226,11 +237,11 @@
         
         /* --- Styles pour les signes colorés dans le tableau --- */
         .sign-plus {
-            color: var(--danger-color); /* Rouge */
+            color: var(--danger-color);
             font-weight: bold;
         }
         .sign-minus {
-            color: var(--primary-color); /* Bleu */
+            color: var(--primary-color);
             font-weight: bold;
         }
 
@@ -241,7 +252,7 @@
             padding-left: 0;
         }
         #solution-output li {
-            background-color: #f0f9ff; /* Light background for list items */
+            background-color: #f0f9ff;
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 6px;
@@ -261,7 +272,7 @@
             font-size: 0.8em;
             box-shadow: none;
             transition: none;
-            margin: 0; /* Override button margin/padding */
+            margin: 0;
         }
         .rule-controls button:active { transform: none; }
         
@@ -271,7 +282,7 @@
             border: 1px dashed #ced4da;
             border-radius: 5px;
             background-color: #ffffff;
-            display: none; /* Hidden by default */
+            display: none;
             text-align: center;
             font-style: italic;
         }
@@ -282,9 +293,7 @@
         .rule-math-display .mjx-container {
             margin: 5px auto !important;
         }
-        /* --- FIN NOUVEAU STYLE --- */
-
-
+        
         /* --- MODAL (Général) --- */
         .modal {
             display: none; 
@@ -295,11 +304,11 @@
         }
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto; 
+            margin: 5% auto; 
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; 
-            max-width: 600px;
+            width: 90%; 
+            max-width: 800px;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             animation: fadeIn 0.3s;
@@ -309,6 +318,70 @@
         }
         .close-btn:hover, .close-btn:focus {
             color: #000; text-decoration: none; cursor: pointer;
+        }
+        
+        /* --- STYLES SPÉCIFIQUES POUR LA RÉSOLUTION PAS À PAS --- */
+        .step-container {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .step-row {
+            margin-bottom: 25px;
+            padding: 10px;
+            border-left: 4px solid #ddd;
+            background: #fff;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .step-hidden {
+            opacity: 0;
+            display: none;
+        }
+        .step-visible {
+            opacity: 1;
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        .step-instruction {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        .step-math {
+            text-align: center;
+            font-size: 1.2em;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px dashed #ccc;
+        }
+        
+        /* Checkbox switch style */
+        .sync-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f1f3f5;
+            padding: 10px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+        .sync-control label {
+            cursor: pointer;
+            font-weight: 600;
+            color: #495057;
+            user-select: none;
+        }
+        .sync-control input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -377,8 +450,8 @@
             
             /* Ajustement des nouveaux boutons du bas */
             .bottom-buttons {
-                flex-direction: column; /* Stack buttons vertically */
-                align-items: stretch; /* Stretch buttons to full width */
+                flex-direction: column; 
+                align-items: stretch; 
                 gap: 10px;
                 margin: 20px 0 10px 0;
             }
@@ -399,8 +472,9 @@
 
             /* Ajustement modale sur mobile */
             .modal-content {
-                margin: 5% auto;
+                margin: 2% auto;
                 width: 95%;
+                padding: 10px;
             }
             .rules-actions {
                 flex-direction: column;
@@ -408,35 +482,155 @@
         }
         /* MEDIA PRINT styles */
         @media print {
-            body { background-color: white; padding: 0; font-size: 12pt; }
-            .container { max-width: 100%; margin: 0; width: 100%; }
-            header h1 { font-size: 1.5em; border-bottom: 2px solid #000; }
-            /* Cacher les éléments interactifs et les boutons, Y COMPRIS L'ANIMATION */
-            .controls, .reminder, #generate-btn, #show-solution-btn, #print-btn, #copyright-btn, #rules-btn, .modal, .bottom-buttons, .rule-controls, .graph-btn, .mini-graph-btn, .anim-btn, #animation-container { display: none !important; }
-            
-            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
-            #exercise-output { border: 2px solid #000; background-color: white; color: black; margin-bottom: 30px; }
-            #solution-output { display: block !important; border: none; border-top: 1px solid #ccc; padding-left: 0; margin-top: 20px; }
-            
-            /* Graphique statique en impression */
-            #graph-container { display: block !important; page-break-inside: avoid; }
-            canvas { border: 1px solid #000; }
+            @page {
+                margin: 1cm;
+                size: A4;
+            }
 
-            /* FORCER L'AFFICHAGE DES RÈGLES SPÉCIFIQUES (math et texte) */
-            .rule-math-display, .rule-french-display {
-                display: block !important; /* Rendre le contenu des règles visible */
-                border: 1px dashed #ccc;
+            body {
+                background-color: white;
+                padding: 0;
+                font-size: 10pt;
+                color: #000;
+            }
+
+            .container {
+                max-width: 100%;
+                margin: 0;
+                width: 100%;
+                padding: 0;
+            }
+
+            header {
+                margin-bottom: 10px;
+                border-bottom: 1px solid #000;
+            }
+
+            header h1 {
+                font-size: 1.4em;
+                margin: 0;
+                padding-bottom: 5px;
+                border: none;
+            }
+
+            header p, header center {
+                display: none;
+            }
+
+            /* Cacher tous les éléments interactifs inutiles */
+            .controls, .reminder, #generate-btn, #show-solution-btn, 
+            #print-btn, #copyright-btn, #rules-btn, .modal, 
+            .bottom-buttons, .rule-controls, .graph-btn, 
+            .mini-graph-btn, .anim-btn, #animation-container, 
+            .factor-graph-container, .detail-btn { 
+                display: none !important; 
+            }
+
+            /* Style de la boite principale */
+            .card {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Enoncé */
+            #exercise-output {
+                border: 1px solid #000;
                 padding: 10px;
-                margin: 10px 0;
-                background-color: #f8f8f8;
-                -webkit-print-color-adjust: exact; /* Pour garder les couleurs de fond/bordure */
-                color: #333;
+                margin-bottom: 10px;
+                font-size: 1.1em;
+                background-color: #fff;
+                min-height: auto;
+            }
+
+            /* Zone Solution */
+            #solution-output {
+                display: block !important;
+                border: none;
+                padding: 0;
+                margin-top: 10px;
+            }
+
+            #solution-output h3 {
+                font-size: 1.1em;
+                margin: 10px 0 5px 0;
+                border-bottom: 1px solid #ccc;
+            }
+
+            #solution-output ul {
+                display: block;
+                column-count: 2; /* Magie : affiche les facteurs sur 2 colonnes */
+                column-gap: 15px;
+                padding: 0;
+                margin: 0;
+            }
+
+            #solution-output li {
+                break-inside: avoid; /* Empêche de couper un bloc en deux */
+                page-break-inside: avoid;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                padding: 8px;
+                margin-bottom: 8px;
+                font-size: 0.95em;
+            }
+
+            /* Règles */
+            .rule-french-display, .rule-math-display {
+                display: none !important; 
+            }
+
+            /* Conteneurs Maths compacts */
+            .math-container {
+                padding: 5px;
+                margin: 5px 0;
+                border: none;
+                background: none;
             }
             
-            .sign-table { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
-            .sign-table th, .sign-table td { border: 1px solid #000; }
-            .sign-table tr:last-child { background-color: #eee !important; -webkit-print-color-adjust: exact; }
-            .math-container { overflow: visible; border: none; }
+            mjx-container {
+                font-size: 90% !important;
+            }
+
+            /* --- TABLEAU DE SIGNE COMPACT --- */
+            .sign-table {
+                border: 1px solid #000;
+                font-size: 0.9em;
+                width: 100%;
+                margin-top: 10px;
+                page-break-inside: avoid;
+            }
+
+            .sign-table th, .sign-table td {
+                border: 1px solid #000;
+                padding: 4px 2px;
+            }
+
+            .sign-plus { color: #000 !important; font-weight: bold; } 
+            .sign-minus { color: #000 !important; font-weight: bold; }
+            .double-bar { color: #000 !important; }
+
+            /* Graphique Global : Réduit en hauteur */
+            #graph-container {
+                display: block !important;
+                page-break-inside: avoid;
+                margin-top: 10px;
+                text-align: left;
+                border: 1px solid #eee;
+                padding: 5px;
+            }
+            
+            #graph-container h4 {
+                margin: 0;
+                font-size: 1em;
+            }
+
+            #graph-canvas {
+                max-height: 150px;
+                width: auto;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -564,6 +758,24 @@
         </div>
     </div>
     
+    <div id="detailedStepModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn step-close-btn">&times;</span>
+            <h2 style="color: var(--detail-color);">🔍 Résolution Détaillée Pas à Pas</h2>
+            
+            <div class="sync-control">
+                <label>
+                    <input type="checkbox" id="sync-read-cb"> 🔊 Lecture audio synchronisée
+                </label>
+                <button id="replay-steps-btn" style="background-color: var(--secondary-color); font-size: 0.8em; padding: 6px 12px; margin-left: 10px;">🔄 Rejouer</button>
+            </div>
+            
+            <p>Observez bien les priorités opératoires et les changements de signes.</p>
+            <hr>
+            <div id="detailed-steps-content"></div>
+        </div>
+    </div>
+
     <div id="copyrightModal" class="modal">
         <div class="modal-content">
             <span class="close-btn copyright-close-btn">&times;</span>
@@ -582,16 +794,20 @@
             <p style="margin-top: 20px; font-style: italic;">Pour toute demande d'utilisation commerciale ou de licence spécifique, veuillez contacter l'auteur à l'adresse indiquée ci-dessus.</p>
         </div>
     </div>
+
     <script>
         // Déclaration des variables globales
         let isMathMode = true;
         const speechSynthesis = window.speechSynthesis;
         let utterance = null; 
-        // Variables globales pour l'animation
         let animationReqId = null;
         let animationPath = [];
         let currentFrame = 0;
-        let persistentArtifacts = []; // Pour stocker les éléments qui doivent rester affichés (lignes, coords)
+        let persistentArtifacts = [];
+        let stepAnimationTimeouts = [];
+        
+        let currentDetailedStepsData = [];
+        let voices = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             const generateBtn = document.getElementById('generate-btn');
@@ -600,30 +816,46 @@
             const exerciseOutput = document.getElementById('exercise-output');
             const solutionOutput = document.getElementById('solution-output');
             
-            // Eléments Graphique Global
             const graphContainer = document.getElementById('graph-container');
             const graphCanvas = document.getElementById('graph-canvas');
-            
-            // Eléments Animation Fin
             const animationContainer = document.getElementById('animation-container');
             const animationCanvas = document.getElementById('animation-canvas');
 
-            // Éléments des Modales
             const copyrightBtn = document.getElementById('copyright-btn');
             const copyrightModal = document.getElementById('copyrightModal');
             const rulesBtn = document.getElementById('rules-btn'); 
-            const rulesModal = document.getElementById('rulesModal'); 
-            const closeBtns = document.querySelectorAll('.close-btn');
+            const rulesModal = document.getElementById('rulesModal');
             
-            // Éléments de la Modale RÈGLES
+            // Nouvelle Modale Détails
+            const detailedStepModal = document.getElementById('detailedStepModal');
+            const detailedStepsContent = document.getElementById('detailed-steps-content');
+            const syncReadCheckbox = document.getElementById('sync-read-cb');
+            const replayStepsBtn = document.getElementById('replay-steps-btn');
+            
+            const closeBtns = document.querySelectorAll('.close-btn');
             const toggleLangBtn = document.getElementById('toggle-lang-btn');
             const speakBtn = document.getElementById('speak-btn');
             const mathRules = rulesModal.querySelectorAll('.math-rule');
             const frenchRules = rulesModal.querySelectorAll('.french-rule');
 
-
             let currentExercise = null;
             const tolerance = 0.0001; 
+            
+            // --- GESTION DES VOIX ---
+            function loadVoices() {
+                voices = speechSynthesis.getVoices();
+            }
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            loadVoices(); // Tentative immédiate
+
+            function getFrenchVoice() {
+                // Priorité : Google Français (souvent meilleure qualité), puis fr-FR, puis n'importe quel fr
+                return voices.find(v => v.name.includes('Google') && v.lang.includes('fr')) 
+                    || voices.find(v => v.lang === 'fr-FR')
+                    || voices.find(v => v.lang.startsWith('fr'));
+            }
 
             // --- Fonctions des Modales principales ---
             function openModal(modalElement) {
@@ -637,9 +869,15 @@
                 modalElement.style.display = "none";
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
-                    if (speakBtn.textContent !== '🔊 Lire à haute voix') {
+                    if (speakBtn && speakBtn.textContent !== '🔊 Lire à haute voix') {
                          speakBtn.textContent = '🔊 Lire à haute voix'; 
                     }
+                }
+                // Si on ferme la modale détails, on nettoie tout
+                if (modalElement.id === 'detailedStepModal') {
+                    stepAnimationTimeouts.forEach(t => clearTimeout(t));
+                    stepAnimationTimeouts = [];
+                    currentDetailedStepsData = [];
                 }
             }
             
@@ -653,14 +891,11 @@
             });
 
             window.onclick = function(event) {
-                if (event.target == copyrightModal) {
-                    closeModal(copyrightModal);
-                } else if (event.target == rulesModal) { 
-                    closeModal(rulesModal);
-                }
+                if (event.target == copyrightModal) closeModal(copyrightModal);
+                else if (event.target == rulesModal) closeModal(rulesModal);
+                else if (event.target == detailedStepModal) closeModal(detailedStepModal);
             }
 
-            // --- Fonction : Bascule de Langue pour la MODALE RÈGLES ---
             function toggleLanguage() {
                 isMathMode = !isMathMode;
                 if (isMathMode) {
@@ -676,13 +911,8 @@
             }
             toggleLangBtn.addEventListener('click', toggleLanguage);
             
-            // --- Fonction : Lecture à Haute Voix pour la MODALE RÈGLES ---
             function speakText() {
-                if (!speechSynthesis) {
-                    alert("Désolé, votre navigateur ne supporte pas la synthèse vocale.");
-                    return;
-                }
-
+                if (!speechSynthesis) { alert("Navigateur incompatible."); return; }
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel();
                     speakBtn.textContent = '🔊 Lire à haute voix';
@@ -691,6 +921,9 @@
                 
                 const ruleListItems = rulesModal.querySelectorAll('.rules-list li');
                 const utterances = [];
+                
+                // On récupère la voix française une fois pour toutes
+                const frVoice = getFrenchVoice();
 
                 ruleListItems.forEach((li, index) => {
                     const titleElement = li.querySelector('b:first-of-type');
@@ -701,34 +934,34 @@
 
                     if (ruleBodyText) {
                         const titleUtterance = new SpeechSynthesisUtterance(titleText);
-                        titleUtterance.lang = 'fr-FR';
-                        titleUtterance.rate = 1.0; 
+                        titleUtterance.lang = 'fr-FR'; 
+                        if(frVoice) titleUtterance.voice = frVoice; // Force voice
                         utterances.push(titleUtterance);
                         
                         const bodyUtterance = new SpeechSynthesisUtterance(ruleBodyText);
-                        bodyUtterance.lang = 'fr-FR';
-                        bodyUtterance.rate = 0.95; 
+                        bodyUtterance.lang = 'fr-FR'; bodyUtterance.rate = 0.95; 
+                        if(frVoice) bodyUtterance.voice = frVoice; // Force voice
                         utterances.push(bodyUtterance);
                     }
                 });
 
                 if (utterances.length > 0) {
                     speakBtn.textContent = '🛑 Arrêter la lecture';
-                    utterances[utterances.length - 1].onend = function() {
-                        speakBtn.textContent = '🔊 Lire à haute voix';
-                    };
+                    utterances[utterances.length - 1].onend = function() { speakBtn.textContent = '🔊 Lire à haute voix'; };
                     utterances.forEach(u => speechSynthesis.speak(u));
-                } else {
-                    alert("Aucun texte de règle n'est disponible pour la lecture.");
                 }
             }
             speakBtn.addEventListener('click', speakText);
             
-            // ------------------------------------------------
-
+            // --- GESTION REJOUER DÉTAILS ---
+            replayStepsBtn.addEventListener('click', function() {
+                if(currentDetailedStepsData.length > 0) {
+                    launchStepSequence(currentDetailedStepsData);
+                }
+            });
+            
             function getRandomInt(min, max) {
-                let num;
-                do { num = Math.floor(Math.random() * (max - min + 1)) + min; } while (num === 0);
+                let num; do { num = Math.floor(Math.random() * (max - min + 1)) + min; } while (num === 0);
                 return num;
             }
 
@@ -747,8 +980,7 @@
                 const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
                 const common = gcd(num, den);
                 
-                num /= common;
-                den /= common;
+                num /= common; den /= common;
                 
                 if (den === 1) return (sign * num).toString();
                 const finalSign = sign === -1 ? "-" : "";
@@ -764,13 +996,7 @@
                 if (b > 0) factorStr += " + " + b; else if (b < 0) factorStr += " - " + Math.abs(b);
                 
                 const root = -b / a;
-                return { 
-                    a: a, 
-                    b: b, 
-                    str: factorStr, 
-                    root: root, 
-                    rootFraction: a === 0 ? "Non défini" : simplifyFraction(-b, a) 
-                };
+                return { a: a, b: b, str: factorStr, root: root, rootFraction: a === 0 ? "Non défini" : simplifyFraction(-b, a) };
             }
             
             function getFactorSignValue(factor, x) {
@@ -779,31 +1005,22 @@
                 return Math.sign(value);
             }
             
-            // --- FONCTION POUR LE GRAPHIQUE GLOBAL ET L'ANIMATION ---
             function evaluateExpression(factors, x) {
-                let numerator = 1;
-                let denominator = 1;
+                let numerator = 1; let denominator = 1;
                 for (let f of factors) {
                     let val = f.a * x + f.b;
                     if (f.isQuotient) {
                         if (Math.abs(val) < 0.0000001) return Infinity * Math.sign(numerator) * Math.sign(val); 
                         denominator *= val;
-                    } else {
-                        numerator *= val;
-                    }
+                    } else numerator *= val;
                 }
                 if (denominator === 0) return Infinity;
                 return numerator / denominator;
             }
 
-            // --- FONCTIONS D'ANIMATION ---
+            // --- ANIMATION & GRAPHS ---
             window.toggleAnimation = function() {
-                 // Stop any existing animation first
-                if (animationReqId) {
-                    cancelAnimationFrame(animationReqId);
-                    animationReqId = null;
-                }
-
+                if (animationReqId) { cancelAnimationFrame(animationReqId); animationReqId = null; }
                 if (animationContainer.style.display === 'block') {
                     animationContainer.style.display = 'none';
                 } else {
@@ -819,256 +1036,125 @@
                 const width = animationCanvas.width;
                 const height = animationCanvas.height;
                 
-                // --- 1. Determine Scales ---
                 const roots = currentExercise.factors.map(f => f.root);
-                let minRoot = Math.min(...roots);
-                let maxRoot = Math.max(...roots);
+                let minRoot = Math.min(...roots); let maxRoot = Math.max(...roots);
                 if (roots.length === 0) { minRoot = -5; maxRoot = 5; }
                 const marginX = Math.max(2, (maxRoot - minRoot) * 0.2);
-                const xMin = minRoot - marginX;
-                const xMax = maxRoot + marginX;
+                const xMin = minRoot - marginX; const xMax = maxRoot + marginX;
                 const xScale = width / (xMax - xMin);
-                const toPixelX = (val) => (val - xMin) * xScale;
+                const toPixelY = (val) => {
+                     return height/2 - val * (height/20);
+                };
 
-                let yMin = Infinity, yMax = -Infinity;
-                const steps = 200;
+                 let yMin = Infinity, yMax = -Infinity;
+                 const steps = 200;
                  for (let i = 0; i <= steps; i++) {
                     const x = xMin + (i / steps) * (xMax - xMin);
                     const y = evaluateExpression(currentExercise.factors, x);
-                    if (isFinite(y) && Math.abs(y) < 10000) { 
-                        if (y < yMin) yMin = y;
-                        if (y > yMax) yMax = y;
-                    }
+                    if (isFinite(y) && Math.abs(y) < 10000) { if (y < yMin) yMin = y; if (y > yMax) yMax = y; }
                 }
                 if (yMax === yMin) { yMax += 5; yMin -= 5; }
-                if (yMin > 0) yMin = -yMax * 0.1; 
-                if (yMax < 0) yMax = -yMin * 0.1; 
-                const rangeY = yMax - yMin;
-                yMin -= rangeY * 0.1; yMax += rangeY * 0.1;
+                if (yMin > 0) yMin = -yMax * 0.1; if (yMax < 0) yMax = -yMin * 0.1; 
+                const rangeY = yMax - yMin; yMin -= rangeY * 0.1; yMax += rangeY * 0.1;
                 if (yMin > 0) yMin = -1; if (yMax < 0) yMax = 1;
                 const yScale = height / (yMax - yMin);
-                const toPixelY = (val) => height - (val - yMin) * yScale;
+                const toPixelY_Final = (val) => height - (val - yMin) * yScale;
 
-                // --- 2. Pre-calculate Animation Path ---
-                animationPath = [];
-                persistentArtifacts = []; // Reset artifacts
-                
+                animationPath = []; persistentArtifacts = [];
                 for (let px = 0; px < width; px++) {
                     const logicalX = xMin + (px / width) * (xMax - xMin);
                     const logicalY = evaluateExpression(currentExercise.factors, logicalX);
-                    
                     if (isFinite(logicalY) && Math.abs(logicalY) < 50000) {
-                         let point = {
-                            px: px,
-                            py: toPixelY(logicalY),
-                            logicalX: logicalX,
-                            logicalY: logicalY,
-                            pauseFrames: 0,
-                            isRoot: false,
-                            rootText: ""
-                        };
-                        
-                        // Détection de croisement de l'axe (changement de signe)
+                         let point = { px: px, py: toPixelY_Final(logicalY), logicalX: logicalX, logicalY: logicalY, pauseFrames: 0, isRoot: false, rootText: "" };
                         if (animationPath.length > 0) {
                             let prevPoint = animationPath[animationPath.length - 1];
-                            let s1 = Math.sign(prevPoint.logicalY);
-                            let s2 = Math.sign(logicalY);
-                            
-                            // Si signe différent (et pas saut asymptote)
+                            let s1 = Math.sign(prevPoint.logicalY); let s2 = Math.sign(logicalY);
                             if (s1 !== s2 && Math.abs(prevPoint.py - point.py) < height/2) {
-                                point.pauseFrames = 80;
-                                point.isRoot = true;
-                                // Trouver la racine la plus proche dans la liste des facteurs pour le texte
+                                point.pauseFrames = 80; point.isRoot = true;
                                 let nearestRootVal = roots.reduce((prev, curr) => Math.abs(curr - logicalX) < Math.abs(prev - logicalX) ? curr : prev);
-                                // Formater le texte
-                                point.rootText = simplifyFraction(nearestRootVal);
-                                // Nettoyage basique pour affichage canvas
-                                point.rootText = point.rootText.replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
+                                point.rootText = simplifyFraction(nearestRootVal).replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
                             }
                         }
                         animationPath.push(point);
                     }
                 }
-                
                 currentFrame = 0;
-                
-                // --- 3. Start Animation Loop ---
-                runAnimationLoop(ctx, width, height, toPixelY);
+                runAnimationLoop(ctx, width, height, toPixelY_Final);
             }
 
             function runAnimationLoop(ctx, width, height, toPixelY) {
-                // Clear canvas
                 ctx.clearRect(0, 0, width, height);
-
-                // --- 1. Draw Static Background (Axes) ---
                 ctx.beginPath(); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
-                const y0 = toPixelY(0);
-                if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); }
-                ctx.stroke();
+                const y0 = toPixelY(0); if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); } ctx.stroke();
                 
-                // --- 2. Draw Curve Progressively (Impregnation) ---
-                // On dessine toute la courbe jusqu'au point actuel avec les couleurs
-                // On dessine aussi la courbe future en gris clair
-                
-                // A. Courbe Future (Gris)
                 ctx.beginPath(); ctx.strokeStyle = '#eee'; ctx.lineWidth = 2;
                 let startedFuture = false;
                 for(let i = currentFrame; i < animationPath.length; i++) {
                      const pt = animationPath[i];
                      if (!startedFuture) { ctx.moveTo(pt.px, pt.py); startedFuture = true; }
-                     else if (i > 0 && Math.abs(pt.py - animationPath[i-1].py) > height/2) {
-                          ctx.moveTo(pt.px, pt.py);
-                     } else {
-                          ctx.lineTo(pt.px, pt.py);
-                     }
+                     else if (i > 0 && Math.abs(pt.py - animationPath[i-1].py) > height/2) { ctx.moveTo(pt.px, pt.py); }
+                     else { ctx.lineTo(pt.px, pt.py); }
                 }
                 ctx.stroke();
 
-                // B. Courbe Passée (Colorée) - Dessin segment par segment pour gérer les changements de couleur
-                // Optimisation : on peut dessiner des paths contigus de même couleur
                 if (currentFrame > 0) {
                     ctx.lineWidth = 3;
                     for(let i = 1; i <= Math.min(currentFrame, animationPath.length - 1); i++) {
-                        const pt = animationPath[i];
-                        const prevPt = animationPath[i-1];
-                        
-                        // Saut d'asymptote ?
+                        const pt = animationPath[i]; const prevPt = animationPath[i-1];
                         if (Math.abs(pt.py - prevPt.py) > height/2) continue;
-
-                        ctx.beginPath();
-                        ctx.moveTo(prevPt.px, prevPt.py);
-                        ctx.lineTo(pt.px, pt.py);
-                        
-                        // Couleur basée sur Y
-                        if (pt.logicalY > 0) ctx.strokeStyle = '#dc3545'; // Rouge
-                        else ctx.strokeStyle = '#007bff'; // Bleu
-                        
+                        ctx.beginPath(); ctx.moveTo(prevPt.px, prevPt.py); ctx.lineTo(pt.px, pt.py);
+                        ctx.strokeStyle = pt.logicalY > 0 ? '#dc3545' : '#007bff';
                         ctx.stroke();
                     }
                 }
                 
-                // --- 3. Draw Axis Impregnation (Black line on X axis) ---
                 if (currentFrame > 0 && y0 >= 0 && y0 <= height) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 2;
-                    ctx.moveTo(0, y0);
-                    // On dessine jusqu'au x actuel
-                    const currentXPx = animationPath[Math.min(currentFrame, animationPath.length-1)].px;
-                    ctx.lineTo(currentXPx, y0);
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.strokeStyle = 'black'; ctx.lineWidth = 2;
+                    ctx.moveTo(0, y0); ctx.lineTo(animationPath[Math.min(currentFrame, animationPath.length-1)].px, y0); ctx.stroke();
                 }
 
-
-                // --- 4. Draw Persistent Artifacts (Les racines déjà passées) ---
-                ctx.setLineDash([5, 5]); // Pointillés
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1;
-                ctx.fillStyle = 'black';
-                ctx.textAlign = "center";
-                
+                ctx.setLineDash([5, 5]); ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.fillStyle = 'black'; ctx.textAlign = "center";
                 for (let art of persistentArtifacts) {
-                    // Ligne verticale
-                    ctx.beginPath();
-                    ctx.moveTo(art.px, 0);
-                    ctx.lineTo(art.px, height);
-                    ctx.stroke();
-                    
-                    // Coordonnées vectorielles (x / 0)
-                    let textY = y0 + 30; 
-                    if (textY > height - 30) textY = height - 10;
-                    if (textY < 40) textY = 40;
-
-                    ctx.font = "24px serif";
-                    ctx.fillText("(", art.px - 12, textY);
-                    ctx.fillText(")", art.px + 12, textY);
-                    ctx.font = "12px Arial";
-                    ctx.fillText(art.text, art.px, textY - 8);
-                    ctx.fillText("0", art.px, textY + 10);
+                    ctx.beginPath(); ctx.moveTo(art.px, 0); ctx.lineTo(art.px, height); ctx.stroke();
+                    let textY = y0 + 30; if (textY > height - 30) textY = height - 10; if (textY < 40) textY = 40;
+                    ctx.font = "24px serif"; ctx.fillText("(", art.px - 12, textY); ctx.fillText(")", art.px + 12, textY);
+                    ctx.font = "12px Arial"; ctx.fillText(art.text, art.px, textY - 8); ctx.fillText("0", art.px, textY + 10);
                 }
-                ctx.setLineDash([]); // Reset pointillés
+                ctx.setLineDash([]);
 
-                // --- 5. Draw Moving Elements ---
                 if (currentFrame < animationPath.length) {
                     const point = animationPath[currentFrame];
+                    let wheelColor = 'black'; let signText = "";
+                    if (point.pauseFrames <= 0) {
+                        if (point.logicalY > 0.05) { wheelColor = '#dc3545'; signText = "+"; }
+                        else if (point.logicalY < -0.05) { wheelColor = '#007bff'; signText = "-"; }
+                    }
+
+                    if (y0 >= 0 && y0 <= height) { ctx.beginPath(); ctx.arc(point.px, y0, 5, 0, 2 * Math.PI); ctx.fillStyle = 'black'; ctx.fill(); }
+
+                    ctx.beginPath(); ctx.arc(point.px, point.py, 10, 0, 2 * Math.PI); 
+                    ctx.fillStyle = wheelColor; ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke(); 
                     
-                    let wheelColor = 'black'; 
-                    let signText = "";
-                    const epsilon = 0.05; 
+                    if (signText !== "") { ctx.font = "bold 24px Arial"; ctx.fillStyle = wheelColor; ctx.textAlign = "center"; ctx.fillText(signText, point.px, point.py - 20); }
 
                     if (point.pauseFrames > 0) {
-                        wheelColor = 'black'; // Pause = Noir
-                        signText = ""; // Pas de signe quand c'est 0
-                    } else {
-                        if (point.logicalY > epsilon) {
-                            wheelColor = '#dc3545'; signText = "+";
-                        } else if (point.logicalY < -epsilon) {
-                            wheelColor = '#007bff'; signText = "-";
-                        }
-                    }
-
-                    // A. Projeté Orthogonal sur l'axe X
-                    if (y0 >= 0 && y0 <= height) {
-                        ctx.beginPath();
-                        ctx.arc(point.px, y0, 5, 0, 2 * Math.PI);
-                        ctx.fillStyle = 'black';
-                        ctx.fill();
-                    }
-
-                    // B. La Roue
-                    ctx.beginPath();
-                    ctx.arc(point.px, point.py, 10, 0, 2 * Math.PI); 
-                    ctx.fillStyle = wheelColor;
-                    ctx.fill();
-                    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke(); 
-                    
-                    // C. Signe Flottant
-                    if (signText !== "") {
-                        ctx.font = "bold 24px Arial";
-                        ctx.fillStyle = wheelColor;
-                        ctx.textAlign = "center";
-                        // Flotter 25px au-dessus de la roue
-                        ctx.fillText(signText, point.px, point.py - 20);
-                    }
-
-                    // --- Gestion de la Pause et Ajout d'Artefacts ---
-                    if (point.pauseFrames > 0) {
-                        const alreadyExists = persistentArtifacts.some(a => Math.abs(a.px - point.px) < 2);
-                        if (!alreadyExists) {
-                            persistentArtifacts.push({
-                                px: point.px,
-                                text: point.rootText
-                            });
-                        }
+                        if (!persistentArtifacts.some(a => Math.abs(a.px - point.px) < 2)) persistentArtifacts.push({ px: point.px, text: point.rootText });
                         point.pauseFrames--;
-                    } else {
-                        currentFrame++;
-                    }
-
+                    } else { currentFrame++; }
                     animationReqId = requestAnimationFrame(() => runAnimationLoop(ctx, width, height, toPixelY));
-                } else {
-                    animationReqId = null;
-                }
+                } else { animationReqId = null; }
             }
 
-
-            // --- FONCTION GRAPHIQUE GLOBAL (STATIQUE) ---
             function drawGlobalGraph() {
                 if (!currentExercise || !currentExercise.factors) return;
                 const ctx = graphCanvas.getContext('2d');
-                const width = graphCanvas.width;
-                const height = graphCanvas.height;
-                
+                const width = graphCanvas.width; const height = graphCanvas.height;
                 ctx.clearRect(0, 0, width, height);
-                
                 const roots = currentExercise.factors.map(f => f.root);
-                let minRoot = Math.min(...roots);
-                let maxRoot = Math.max(...roots);
+                let minRoot = Math.min(...roots); let maxRoot = Math.max(...roots);
                 if (roots.length === 0) { minRoot = -5; maxRoot = 5; }
-                
                 const marginX = Math.max(2, (maxRoot - minRoot) * 0.2);
-                const xMin = minRoot - marginX;
-                const xMax = maxRoot + marginX;
+                const xMin = minRoot - marginX; const xMax = maxRoot + marginX;
                 const xScale = width / (xMax - xMin);
                 const toPixelX = (val) => (val - xMin) * xScale;
                 
@@ -1077,42 +1163,26 @@
                 for (let i = 0; i <= steps; i++) {
                     const x = xMin + (i / steps) * (xMax - xMin);
                     const y = evaluateExpression(currentExercise.factors, x);
-                    if (isFinite(y) && Math.abs(y) < 10000) { 
-                        if (y < yMin) yMin = y;
-                        if (y > yMax) yMax = y;
-                    }
+                    if (isFinite(y) && Math.abs(y) < 10000) { if (y < yMin) yMin = y; if (y > yMax) yMax = y; }
                 }
                 if (yMax === yMin) { yMax += 5; yMin -= 5; }
-                if (yMin > 0) yMin = -yMax * 0.1; 
-                if (yMax < 0) yMax = -yMin * 0.1; 
-                
-                const rangeY = yMax - yMin;
-                yMin -= rangeY * 0.1;
-                yMax += rangeY * 0.1;
-                
-                if (yMin > 0) yMin = -1;
-                if (yMax < 0) yMax = 1;
-                
+                if (yMin > 0) yMin = -yMax * 0.1; if (yMax < 0) yMax = -yMin * 0.1; 
+                const rangeY = yMax - yMin; yMin -= rangeY * 0.1; yMax += rangeY * 0.1;
+                if (yMin > 0) yMin = -1; if (yMax < 0) yMax = 1;
                 const yScale = height / (yMax - yMin);
                 const toPixelY = (val) => height - (val - yMin) * yScale;
                 
-                // AXES
                 ctx.beginPath(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
-                const y0 = toPixelY(0);
-                if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); }
-                const x0 = toPixelX(0);
-                if (x0 >= 0 && x0 <= width) { ctx.moveTo(x0, 0); ctx.lineTo(x0, height); }
+                const y0 = toPixelY(0); if (y0 >= 0 && y0 <= height) { ctx.moveTo(0, y0); ctx.lineTo(width, y0); }
+                const x0 = toPixelX(0); if (x0 >= 0 && x0 <= width) { ctx.moveTo(x0, 0); ctx.lineTo(x0, height); }
                 ctx.stroke();
                 
-                // COURBE
                 ctx.beginPath(); ctx.strokeStyle = '#6f42c1'; ctx.lineWidth = 2;
                 let started = false;
                 for (let px = 0; px < width; px++) {
                     const logicalX = xMin + (px / width) * (xMax - xMin);
                     const logicalY = evaluateExpression(currentExercise.factors, logicalX);
-                    const py = toPixelY(logicalY);
-                    const isOut = Math.abs(logicalY) > 100000; 
-                    
+                    const py = toPixelY(logicalY); const isOut = Math.abs(logicalY) > 100000; 
                     if (isOut) { started = false; continue; }
                     if (!started) { ctx.moveTo(px, py); started = true; } 
                     else {
@@ -1133,230 +1203,102 @@
                 }
             }
             
-            // --- FONCTIONS POUR LES GRAPHIQUES INDIVIDUELS (FACTEURS) ---
-            
             window.toggleFactorGraph = function(containerId, factorIndex) {
                 const container = document.getElementById(containerId);
                 const canvas = container.querySelector('canvas');
-                
-                // CORRECTION : Vérifier si ce n'est PAS block
-                if (container.style.display === 'block') {
-                    container.style.display = 'none';
-                } else {
-                    container.style.display = 'block';
-                    // Dessiner le graphe de la droite
-                    drawFactorGraph(canvas, factorIndex);
-                }
+                if (container.style.display === 'block') { container.style.display = 'none'; } 
+                else { container.style.display = 'block'; drawFactorGraph(canvas, factorIndex); }
             };
             
-            // Fonction pour dessiner une accolade horizontale sous l'axe
             function drawCurlyBrace(ctx, x1, x2, y, color, text) {
-                const w = x2 - x1;
-                if (w < 10) return; // Trop petit pour dessiner
-                
-                const h = 10; // Profondeur de l'accolade
-                const cx = x1 + w / 2;
-                const cy = y + h; // Y de la pointe
-                
-                ctx.beginPath();
-                ctx.strokeStyle = color;
-                ctx.fillStyle = color;
-                ctx.lineWidth = 2;
-                
-                // Dessin de l'accolade (style "Moustache")
-                ctx.moveTo(x1, y);
-                // Courbe gauche vers le bas
-                ctx.bezierCurveTo(x1, y + 5, cx - w/4, cy, cx, cy);
-                // Courbe droite vers le haut
-                ctx.bezierCurveTo(cx + w/4, cy, x2, y + 5, x2, y);
-                
-                ctx.stroke();
-                
-                // Texte sous l'accolade
-                ctx.font = "bold 14px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText(text, cx, cy + 18);
+                const w = x2 - x1; if (w < 10) return;
+                const h = 10; const cx = x1 + w / 2; const cy = y + h;
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+                ctx.moveTo(x1, y); ctx.bezierCurveTo(x1, y + 5, cx - w/4, cy, cx, cy); ctx.bezierCurveTo(cx + w/4, cy, x2, y + 5, x2, y);
+                ctx.stroke(); ctx.font = "bold 14px Arial"; ctx.textAlign = "center"; ctx.fillText(text, cx, cy + 18);
             }
 
             function drawFactorGraph(canvas, factorIndex) {
                 const factor = currentExercise.factors[factorIndex];
                 const ctx = canvas.getContext('2d');
-                const width = canvas.width;
-                const height = canvas.height;
-                
+                const width = canvas.width; const height = canvas.height;
                 ctx.clearRect(0, 0, width, height);
+                const xMin = factor.root - 4; const xMax = factor.root + 4;
+                const absA = Math.abs(factor.a) || 1; const yLimit = 4 * absA;
+                const yMin = -yLimit; const yMax = yLimit;
+                const xScale = width / (xMax - xMin); const yScale = height / (yMax - yMin);
+                const toPixelX = (val) => (val - xMin) * xScale; const toPixelY = (val) => height - (val - yMin) * yScale;
                 
-                // Définir une fenêtre centrée sur la racine
-                // X de [root - 4, root + 4]
-                const xMin = factor.root - 4;
-                const xMax = factor.root + 4;
-                
-                // Pour Y, on prend une échelle relative à 'a'
-                const absA = Math.abs(factor.a) || 1;
-                const yLimit = 4 * absA;
-                const yMin = -yLimit;
-                const yMax = yLimit;
-                
-                const xScale = width / (xMax - xMin);
-                const yScale = height / (yMax - yMin);
-                
-                const toPixelX = (val) => (val - xMin) * xScale;
-                const toPixelY = (val) => height - (val - yMin) * yScale;
-                
-                // --- AXES ---
                 ctx.beginPath(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
-                const py0 = toPixelY(0);
-                ctx.moveTo(0, py0); ctx.lineTo(width, py0);
-                const px0 = toPixelX(0);
-                if (px0 >= 0 && px0 <= width) { ctx.moveTo(px0, 0); ctx.lineTo(px0, height); }
+                const py0 = toPixelY(0); ctx.moveTo(0, py0); ctx.lineTo(width, py0);
+                const px0 = toPixelX(0); if (px0 >= 0 && px0 <= width) { ctx.moveTo(px0, 0); ctx.lineTo(px0, height); }
                 ctx.stroke();
                 
-                // --- LA DROITE EN COULEURS ---
-                const pRootX = toPixelX(factor.root);
-                const pRootY = toPixelY(0);
-                
-                const yAtMin = factor.a * xMin + factor.b;
-                const yAtMax = factor.a * xMax + factor.b;
-                const pMinY = toPixelY(yAtMin);
-                const pMaxY = toPixelY(yAtMax);
-                
+                const pRootX = toPixelX(factor.root); const pRootY = toPixelY(0);
+                const pMinY = toPixelY(factor.a * xMin + factor.b); const pMaxY = toPixelY(factor.a * xMax + factor.b);
                 ctx.lineWidth = 3;
                 
-                // Segment de Gauche (0 à pRootX)
-                ctx.beginPath();
-                ctx.moveTo(0, pMinY);
-                ctx.lineTo(pRootX, pRootY);
-                const leftColor = factor.a > 0 ? '#007bff' : '#dc3545'; // Bleu si monte (negatif à gauche), Rouge si descend (positif à gauche)
-                ctx.strokeStyle = leftColor;
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, pMinY); ctx.lineTo(pRootX, pRootY);
+                const leftColor = factor.a > 0 ? '#007bff' : '#dc3545'; ctx.strokeStyle = leftColor; ctx.stroke();
                 
-                // Segment de Droite (pRootX à width)
-                ctx.beginPath();
-                ctx.moveTo(pRootX, pRootY);
-                ctx.lineTo(width, pMaxY);
-                const rightColor = factor.a > 0 ? '#dc3545' : '#007bff'; // Rouge si monte (positif à droite), Bleu si descend (negatif à droite)
-                ctx.strokeStyle = rightColor;
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(pRootX, pRootY); ctx.lineTo(width, pMaxY);
+                const rightColor = factor.a > 0 ? '#dc3545' : '#007bff'; ctx.strokeStyle = rightColor; ctx.stroke();
                 
-                // --- GROS POINT ---
-                ctx.beginPath();
-                ctx.arc(pRootX, pRootY, 6, 0, 2 * Math.PI);
-                ctx.fillStyle = 'black';
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(pRootX, pRootY, 6, 0, 2 * Math.PI); ctx.fillStyle = 'black'; ctx.fill();
                 
-                // --- LIBELLÉ VECTORIEL ---
-                ctx.fillStyle = 'black';
-                ctx.font = "16px Arial";
-                ctx.textAlign = "center";
-                const textX = pRootX + 15; 
-                const textY = pRootY + 30;
+                ctx.fillStyle = 'black'; ctx.font = "16px Arial"; ctx.textAlign = "center";
+                const textX = pRootX + 15; const textY = pRootY + 30;
+                let textVal = factor.rootFraction.replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
+                ctx.font = "30px serif"; ctx.fillText("(", textX - 15, textY + 5); ctx.fillText(")", textX + 15, textY + 5);
+                ctx.font = "12px Arial"; ctx.fillText(textVal, textX, textY - 8); ctx.fillText("0", textX, textY + 12);
                 
-                let textVal = factor.rootFraction;
-                textVal = textVal.replace('\\dfrac{', '').replace('}{', '/').replace('}', '');
-                
-                ctx.font = "30px serif";
-                ctx.fillText("(", textX - 15, textY + 5);
-                ctx.fillText(")", textX + 15, textY + 5);
-                ctx.font = "12px Arial";
-                ctx.fillText(textVal, textX, textY - 8);
-                ctx.fillText("0", textX, textY + 12);
-
-                // --- ACCOLADES SOUS L'AXE ---
-                // On commence les accolades un peu plus bas que le libellé du vecteur
                 const braceY = pRootY + 55; 
-                
-                // Accolade Gauche (0 à pRootX)
-                // GAUCHE = x < Racine
                 drawCurlyBrace(ctx, 0, pRootX, braceY, leftColor, "x < " + textVal);
-
-                // Accolade Droite (pRootX à width)
-                // DROITE = x > Racine
                 drawCurlyBrace(ctx, pRootX, width, braceY, rightColor, "x > " + textVal);
             }
-
-            // --------------------------------------------
-
 
             function generateSignTableHTML(factors) {
                 const allRoots = factors.map(f => f.root);
                 const uniqueSortedRoots = [...new Set(allRoots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b); 
-
                 let tableHTML = `<table class="sign-table"><thead>`;
                 tableHTML += `<tr class="root-row"><th>\\(x\\)</th><th>\\(-\\infty\\)</th>`;
-                
-                const displayRoots = uniqueSortedRoots.map(r => 
-                    factors.find(f => Math.abs(f.root - r) < tolerance)?.rootFraction || simplifyFraction(r)
-                );
-                
-                displayRoots.forEach(rootDisplay => {
-                    tableHTML += `<th class="interval-header"></th><th class="root-cell">\\(${rootDisplay}\\)</th>`;
-                });
-                
+                const displayRoots = uniqueSortedRoots.map(r => factors.find(f => Math.abs(f.root - r) < tolerance)?.rootFraction || simplifyFraction(r));
+                displayRoots.forEach(rootDisplay => { tableHTML += `<th class="interval-header"></th><th class="root-cell">\\(${rootDisplay}\\)</th>`; });
                 tableHTML += `<th class="interval-header"></th><th>\\(+\\infty\\)</th></tr></thead><tbody>`;
 
-                factors.forEach((factor, factorIndex) => {
+                factors.forEach((factor) => {
                     tableHTML += `<tr><td>\\(${factor.str}\\)</td><td></td>`; 
-
                     for (let i = 0; i < uniqueSortedRoots.length; i++) {
                         const r_current = uniqueSortedRoots[i];
                         const r_prev = (i === 0) ? -Infinity : uniqueSortedRoots[i - 1];
-
-                        let testPointInterval;
-                        if (r_prev === -Infinity) testPointInterval = r_current - 1;
-                        else testPointInterval = (r_prev + r_current) / 2;
-                        
-                        const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? 
-                            `<span class="sign-plus">+</span>` : 
-                            `<span class="sign-minus">-</span>`;
+                        let testPointInterval = (r_prev === -Infinity) ? r_current - 1 : (r_prev + r_current) / 2;
+                        const intervalSign = getFactorSignValue(factor, testPointInterval) >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`;
                         tableHTML += `<td>${intervalSign}</td>`;
-
                         const isZero = Math.abs(factor.root - r_current) < tolerance;
                         const isDenominatorRoot = factor.isQuotient && isZero; 
-                        
-                        if (isDenominatorRoot) {
-                            tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`;
-                        } else if (isZero) {
-                            tableHTML += `<td style="font-weight: bold;">0</td>`;
-                        } else {
-                            tableHTML += `<td class="simple-bar">|</td>`;
-                        }
+                        if (isDenominatorRoot) tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`;
+                        else if (isZero) tableHTML += `<td style="font-weight: bold;">0</td>`;
+                        else tableHTML += `<td class="simple-bar">|</td>`;
                     }
-                    
                     const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
                     const testPointLast = r_last + 1;
-                    const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? 
-                        `<span class="sign-plus">+</span>` : 
-                        `<span class="sign-minus">-</span>`;
+                    const lastIntervalSign = getFactorSignValue(factor, testPointLast) >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`;
                     tableHTML += `<td>${lastIntervalSign}</td><td></td></tr>`;
                 });
                 
                 tableHTML += `<tr style="font-weight: bold;"><td>\\(E(x)\\)</td><td></td>`; 
-
                 for (let i = 0; i < uniqueSortedRoots.length; i++) {
                     const r_current = uniqueSortedRoots[i];
                     const r_prev = (i === 0) ? -Infinity : uniqueSortedRoots[i - 1];
-                    
-                    let testPoint;
-                    if (r_prev === -Infinity) testPoint = r_current - 1;
-                    else testPoint = (r_prev + r_current) / 2;
-                    
-                    let productSign = 1;
-                    factors.forEach(factor => productSign *= getFactorSignValue(factor, testPoint));
+                    let testPoint = (r_prev === -Infinity) ? r_current - 1 : (r_prev + r_current) / 2;
+                    let productSign = 1; factors.forEach(factor => productSign *= getFactorSignValue(factor, testPoint));
                     tableHTML += `<td>${productSign >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td>`;
-
                     const isValueInterdite = factors.some(f => f.isQuotient && Math.abs(f.root - r_current) < tolerance); 
-                    
-                    if (isValueInterdite) {
-                        tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`;
-                    } else {
-                        tableHTML += `<td>0</td>`;
-                    }
+                    if (isValueInterdite) tableHTML += `<td class="double-bar">\\(\\parallel\\)</td>`; else tableHTML += `<td>0</td>`;
                 }
-
                 const r_last = uniqueSortedRoots[uniqueSortedRoots.length - 1];
                 const testPointLast = r_last + 1;
-                let productSignLast = 1;
-                factors.forEach(factor => productSignLast *= getFactorSignValue(factor, testPointLast));
+                let productSignLast = 1; factors.forEach(factor => productSignLast *= getFactorSignValue(factor, testPointLast));
                 tableHTML += `<td>${productSignLast >= 0 ? `<span class="sign-plus">+</span>` : `<span class="sign-minus">-</span>`}</td><td></td></tr></tbody></table>`; 
                 return tableHTML;
             }
@@ -1364,105 +1306,77 @@
             function generateExercise() {
                 solutionOutput.style.display = 'none';
                 graphContainer.style.display = 'none'; 
-                // Cacher le conteneur d'animation si on génère un nouvel exercice
                 animationContainer.style.display = 'none';
                 if (animationReqId) { cancelAnimationFrame(animationReqId); animationReqId = null; }
                 
-                let factors = [];
-                let displayExpression = ""; 
-                let factorizationStep = null; 
+                let factors = []; let displayExpression = ""; let factorizationStep = null; 
                 let complexity = parseInt(complexitySelect.value);
-
-                const minA = -4, maxA = 4;
-                const minB = -6, maxB = 6;
+                const minA = -4, maxA = 4; const minB = -6, maxB = 6;
 
                 if (complexity <= 4) {
-                    if (complexity === 1) {
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        displayExpression = factors[0].str;
-                    } else if (complexity === 2) {
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                    if (complexity === 1) { factors.push(generateFactor(minA, maxA, minB, maxB)); displayExpression = factors[0].str; }
+                    else if (complexity === 2) {
+                        factors.push(generateFactor(minA, maxA, minB, maxB)); factors.push(generateFactor(minA, maxA, minB, maxB));
                         displayExpression = `(${factors[0].str})(${factors[1].str})`;
                     } else if (complexity === 3) {
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        factors[1].isQuotient = true; 
-                        displayExpression = `\\dfrac{${factors[0].str}}{${factors[1].str}}`;
+                        factors.push(generateFactor(minA, maxA, minB, maxB)); factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors[1].isQuotient = true; displayExpression = `\\dfrac{${factors[0].str}}{${factors[1].str}}`;
                     } else if (complexity === 4) {
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
-                        factors.push(generateFactor(minA, maxA, minB, maxB));
+                        factors.push(generateFactor(minA, maxA, minB, maxB)); factors.push(generateFactor(minA, maxA, minB, maxB)); factors.push(generateFactor(minA, maxA, minB, maxB));
                         displayExpression = `(${factors[0].str})(${factors[1].str})(${factors[2].str})`;
                     }
                 } 
                 else if (complexity === 5) {
-                    const k_base = getRandomInt(2, 6);
-                    const k_squared = k_base * k_base;
+                    const k_base = getRandomInt(2, 6); const k_squared = k_base * k_base;
                     const baseFactor = generateFactor(minA, maxA, minB, maxB);
                     displayExpression = `(${baseFactor.str})^2 - ${k_squared}`;
-                    
                     const f1 = { a: baseFactor.a, b: baseFactor.b - k_base, str: "", root: 0, rootFraction: "" };
                     const f2 = { a: baseFactor.a, b: baseFactor.b + k_base, str: "", root: 0, rootFraction: "" };
                     [f1, f2].forEach(f => {
                         f.str = (f.a === 1 ? "x" : (f.a === -1 ? "-x" : f.a+"x")) + (f.b>=0 ? "+"+f.b : f.b);
-                        f.root = -f.b/f.a;
-                        f.rootFraction = simplifyFraction(-f.b, f.a);
+                        f.root = -f.b/f.a; f.rootFraction = simplifyFraction(-f.b, f.a);
                     });
                     factors.push(f1, f2);
+                    // AJOUT: stockage de rawA et rawB pour l'animation
                     factorizationStep = {
-                        initial: displayExpression,
-                        identity: `A^2 - B^2 = (A-B)(A+B)`,
-                        step1: `A = (${baseFactor.str}) \\quad \\text{et} \\quad B = ${k_base}`,
-                        final: `E(x) = (${f1.str})(${f2.str})`
+                        initial: displayExpression, identity: `A^2 - B^2 = (A-B)(A+B)`,
+                        step1: `A = (${baseFactor.str}) \\quad \\text{et} \\quad B = ${k_base}`, 
+                        final: `E(x) = (${f1.str})(${f2.str})`,
+                        rawA: `(${baseFactor.str})`,
+                        rawB: `${k_base}`
                     };
                 }
                 else if (complexity === 6) {
                     const variant = Math.random() < 0.5 ? 'fact_quotient' : 'multi_quotient';
                     if (variant === 'fact_quotient') {
-                        const k_base = getRandomInt(2, 6);
-                        const k_squared = k_base * k_base;
+                        const k_base = getRandomInt(2, 6); const k_squared = k_base * k_base;
                         const baseFactor = generateFactor(minA, maxA, minB, maxB);
-                        const denomFactor = generateFactor(minA, maxA, minB, maxB);
-                        denomFactor.isQuotient = true;
+                        const denomFactor = generateFactor(minA, maxA, minB, maxB); denomFactor.isQuotient = true;
                         displayExpression = `\\dfrac{(${baseFactor.str})^2 - ${k_squared}}{${denomFactor.str}}`;
                         const f1 = { a: baseFactor.a, b: baseFactor.b - k_base, str: "", root: 0, rootFraction: "" };
                         const f2 = { a: baseFactor.a, b: baseFactor.b + k_base, str: "", root: 0, rootFraction: "" };
                          [f1, f2].forEach(f => {
                             f.str = (f.a === 1 ? "x" : (f.a === -1 ? "-x" : f.a+"x")) + (f.b>=0 ? "+"+f.b : f.b);
-                            f.root = -f.b/f.a;
-                            f.rootFraction = simplifyFraction(-f.b, f.a);
+                            f.root = -f.b/f.a; f.rootFraction = simplifyFraction(-f.b, f.a);
                         });
                         factors.push(f1, f2, denomFactor);
+                        // AJOUT: stockage de rawA et rawB pour l'animation
                         factorizationStep = {
-                            initial: `(${baseFactor.str})^2 - ${k_squared}`,
-                            identity: `A^2 - B^2 = (A-B)(A+B)`,
-                            step1: `\\text{Numérateur : } A = (${baseFactor.str}), B = ${k_base}`,
-                            final: `E(x) = \\dfrac{(${f1.str})(${f2.str})}{${denomFactor.str}}`
+                            initial: `(${baseFactor.str})^2 - ${k_squared}`, identity: `A^2 - B^2 = (A-B)(A+B)`,
+                            step1: `\\text{Numérateur : } A = (${baseFactor.str}), B = ${k_base}`, 
+                            final: `E(x) = \\dfrac{(${f1.str})(${f2.str})}{${denomFactor.str}}`,
+                            rawA: `(${baseFactor.str})`,
+                            rawB: `${k_base}`
                         };
                     } else {
-                        const f1 = generateFactor(minA, maxA, minB, maxB);
-                        const f2 = generateFactor(minA, maxA, minB, maxB);
-                        const f3 = generateFactor(minA, maxA, minB, maxB);
-                        if (Math.random() < 0.5) {
-                            f3.isQuotient = true;
-                            displayExpression = `\\dfrac{(${f1.str})(${f2.str})}{${f3.str}}`;
-                        } else {
-                            f2.isQuotient = true;
-                            f3.isQuotient = true;
-                            displayExpression = `\\dfrac{${f1.str}}{(${f2.str})(${f3.str})}`;
-                        }
+                        const f1 = generateFactor(minA, maxA, minB, maxB); const f2 = generateFactor(minA, maxA, minB, maxB); const f3 = generateFactor(minA, maxA, minB, maxB);
+                        if (Math.random() < 0.5) { f3.isQuotient = true; displayExpression = `\\dfrac{(${f1.str})(${f2.str})}{${f3.str}}`; } 
+                        else { f2.isQuotient = true; f3.isQuotient = true; displayExpression = `\\dfrac{${f1.str}}{(${f2.str})(${f3.str})}`; }
                         factors.push(f1, f2, f3);
                     }
                 }
 
-                currentExercise = {
-                    expressionDisplay: displayExpression,
-                    factors: factors,
-                    complexity: complexity,
-                    factorizationStep: factorizationStep
-                };
-                
+                currentExercise = { expressionDisplay: displayExpression, factors: factors, complexity: complexity, factorizationStep: factorizationStep };
                 let énoncé = `Dresser le <b>tableau de signe</b> de :`;
                 if (complexity >= 3 && complexity !== 5) énoncé += ` (<span style="color:var(--danger-color); font-weight:bold;">Attention aux valeurs interdites !</span>)`;
                 if (complexity === 5 || complexity === 6) énoncé += ` <p><i><b>Regardez</b> bien si une <b><u>factorisation</u></b> est nécessaire</i></p>`;
@@ -1472,11 +1386,237 @@
                     <div class="math-container">\\[ E(x) = ${displayExpression} \\]</div>
                     <button id="graph-trigger-btn" class="graph-btn">📈 Graphique Global</button>
                 `;
-                
                 document.getElementById('graph-trigger-btn').addEventListener('click', toggleGraph);
-
                 if (window.MathJax) MathJax.typesetPromise([exerciseOutput]).catch((err) => console.log('MathJax Error:', err));
             }
+
+            // -------------------------------------------------------------
+            // --- NOUVELLE FONCTIONNALITÉ : DÉTAILS PAS À PAS ANIMÉS ---
+            // -------------------------------------------------------------
+            
+            // Helper function to manage logic sequence
+            function launchStepSequence(stepsData) {
+                 // Clear any existing animation or speech
+                stepAnimationTimeouts.forEach(t => clearTimeout(t));
+                stepAnimationTimeouts = [];
+                if (speechSynthesis.speaking) speechSynthesis.cancel();
+                
+                // Hide all steps initially
+                stepsData.forEach((_, i) => {
+                    const el = document.getElementById(`step-row-${i}`);
+                    if (el) {
+                        el.classList.remove('step-visible');
+                        el.classList.add('step-hidden');
+                    }
+                });
+
+                const useAudio = syncReadCheckbox.checked;
+
+                if (!useAudio) {
+                    // MODE VISUEL RAPIDE (Sans Audio)
+                    stepsData.forEach((_, i) => {
+                        const timeoutId = setTimeout(() => {
+                            const el = document.getElementById(`step-row-${i}`);
+                            if(el) {
+                                el.classList.remove('step-hidden');
+                                el.classList.add('step-visible');
+                                if(i > 1) el.scrollIntoView({behavior: "smooth", block: "center"});
+                            }
+                        }, i * 1500); 
+                        stepAnimationTimeouts.push(timeoutId);
+                    });
+                } else {
+                    // MODE SYNCHRONISÉ (Audio guide l'affichage)
+                    let currentStepIndex = 0;
+                    
+                    // On récupère la voix française
+                    const frVoice = getFrenchVoice();
+
+                    function playNextStep() {
+                        if (currentStepIndex >= stepsData.length) return; // Fini
+
+                        const i = currentStepIndex;
+                        const el = document.getElementById(`step-row-${i}`);
+                        
+                        // 1. Afficher l'étape
+                        if(el) {
+                            el.classList.remove('step-hidden');
+                            el.classList.add('step-visible');
+                            if(i > 1) el.scrollIntoView({behavior: "smooth", block: "center"});
+                        }
+
+                        // 2. Préparer la voix
+                        const utterance = new SpeechSynthesisUtterance(stepsData[i].text);
+                        utterance.lang = 'fr-FR';
+                        utterance.rate = 0.95;
+                        if(frVoice) utterance.voice = frVoice; // Force voice
+
+                        // 3. Quand fini de parler -> Etape suivante
+                        utterance.onend = function() {
+                            currentStepIndex++;
+                            // Petit délai naturel avant la suite
+                            const tId = setTimeout(playNextStep, 500);
+                            stepAnimationTimeouts.push(tId);
+                        };
+
+                        // 4. Parler
+                        speechSynthesis.speak(utterance);
+                    }
+
+                    // Démarrage
+                    playNextStep();
+                }
+            }
+            
+            // --- NOUVELLE FONCTION FACTORISATION ---
+            window.openFactorizationDetails = function() {
+                const stepData = currentExercise.factorizationStep;
+                
+                // Reset content
+                detailedStepsContent.innerHTML = '';
+                openModal(detailedStepModal);
+                
+                const stepsData = [
+                    {
+                        text: "On part de l'expression initiale.",
+                        math: stepData.initial
+                    },
+                    {
+                        text: "On reconnait l'identité remarquable : A carré moins B carré égale A moins B facteur de A plus B.",
+                        math: "A^2 - B^2 = (A-B)(A+B)"
+                    },
+                    {
+                        text: "On identifie les termes A et B.",
+                        math: stepData.step1
+                    },
+                    {
+                        text: "On applique la formule en remplaçant A et B. Cela donne : (A - B) facteur de (A + B).",
+                        math: `(${stepData.rawA} - ${stepData.rawB})(${stepData.rawA} + ${stepData.rawB})`
+                    },
+                    {
+                        text: "Enfin, on simplifie l'intérieur des parenthèses pour obtenir la forme factorisée finale.",
+                        math: stepData.final
+                    }
+                ];
+                
+                // Save for replay
+                currentDetailedStepsData = stepsData;
+                
+                // Génération HTML
+                stepsData.forEach((step, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'step-row step-hidden';
+                    row.id = `step-row-${i}`;
+                    row.innerHTML = `
+                        <div class="step-instruction">${step.text}</div>
+                        <div class="step-math">\\[ ${step.math} \\]</div>
+                    `;
+                    detailedStepsContent.appendChild(row);
+                });
+
+                // Rendu MathJax initial (caché) -> Puis lancement sequence
+                MathJax.typesetPromise([detailedStepsContent]).then(() => {
+                    launchStepSequence(stepsData);
+                });
+            }
+
+            window.openDetailedResolution = function(factorIndex) {
+                const f = currentExercise.factors[factorIndex];
+                
+                // Reset content
+                detailedStepsContent.innerHTML = '';
+                openModal(detailedStepModal);
+                
+                // Variables pour l'affichage
+                const a = f.a;
+                const b = f.b;
+                const oppositeB = -b;
+                
+                // Formatting Helpers
+                const colRed = "\\color{#dc3545}";
+                const colBlue = "\\color{#007bff}";
+                const colBlack = "\\color{black}";
+                
+                // Step 1: Identification (Ax + B > 0)
+                let signB_Str = b >= 0 ? "+" : ""; 
+                let step1_Eq = `${a} ${colRed}\\times${colBlack} x ${colBlue}${signB_Str}${b}${colBlack} > 0`;
+                
+                // Step 2: Opération Additive (On enlève B des deux cotés)
+                let opAddVal = oppositeB >= 0 ? `+${oppositeB}` : `${oppositeB}`;
+                let step2_Eq = `${a} ${colRed}\\times${colBlack} x ${colBlue}${signB_Str}${b} \\underbrace{${colBlue}${opAddVal}${colBlack}} > 0 \\underbrace{${colBlue}${opAddVal}${colBlack}}`;
+                
+                // Step 3: Réduction Additive
+                let step3_Eq = `${a} ${colRed}\\times${colBlack} x ${colBlack} > ${oppositeB}`;
+
+                // Step 4 & 5: Opération Multiplicative
+                let isInverse = a < 0;
+                let invA = `\\dfrac{1}{${a}}`;
+                
+                // CORRECTION VISUELLE : \bbox et espace \quad
+                let inverseSymbol = isInverse 
+                    ? "\\bbox[#fff3cd, 5px, border: 2px solid #dc3545]{\\color{#dc3545}\\mathbf{<}}" 
+                    : ">";
+                
+                let step4_Eq, step5_Eq, step4_Title;
+                
+                if (isInverse) {
+                    // CHANGEMENT : (4') -> (4) et 1/${a} -> 1 sur ${a}
+                    step4_Title = `(4) Multiplier par l'inverse de ${a} (négatif), c'est-à-dire 1 sur ${a} : On inverse l'ordre !`;
+                    // On met le multiplicateur devant en rouge + espace \quad
+                    step4_Eq = `\\underbrace{${colRed}-\\dfrac{1}{${Math.abs(a)}}\\times${colBlack}}(${a}) ${colRed}\\times${colBlack} x \\quad ${inverseSymbol} \\underbrace{${colRed}-\\dfrac{1}{${Math.abs(a)}}\\times${colBlack}}(${oppositeB})`;
+                    step5_Eq = `x ${colBlack} < ${f.rootFraction}`;
+                } else {
+                    // CHANGEMENT : 1/${a} -> 1 sur ${a}
+                    step4_Title = `(4) Multiplier par l'inverse de ${a} (positif), c'est-à-dire 1 sur ${a} : On garde l'ordre.`;
+                    step4_Eq = `\\underbrace{${colRed}\\dfrac{1}{${a}}\\times${colBlack}}${a} ${colRed}\\times${colBlack} x ${colBlack} > \\underbrace{${colRed}\\dfrac{1}{${a}}\\times${colBlack}}(${oppositeB})`;
+                    step5_Eq = `x ${colBlack} > ${f.rootFraction}`;
+                }
+
+                // Construction des données des étapes
+                const stepsData = [
+                    {
+                        text: "(1) Mettre en évidence les signes opératoires. Rouge pour les multiplications, Bleu pour les additions et soustractions.",
+                        math: step1_Eq
+                    },
+                    {
+                        text: `(2) Annuler le terme constant : Additionner ${opAddVal} de chaque côté`,
+                        math: step2_Eq
+                    },
+                    {
+                        text: "(3) Réduire l'expression",
+                        math: step3_Eq
+                    },
+                    {
+                        text: step4_Title,
+                        math: step4_Eq
+                    },
+                    {
+                        // CHANGEMENT : (5') -> (5)
+                        text: isInverse ? "(5) Résultat final. Attention au sens de l'inégalité !" : "(5) Résultat final",
+                        math: step5_Eq
+                    }
+                ];
+                
+                // Save for replay
+                currentDetailedStepsData = stepsData;
+
+                // Génération HTML
+                stepsData.forEach((step, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'step-row step-hidden';
+                    row.id = `step-row-${i}`;
+                    row.innerHTML = `
+                        <div class="step-instruction">${step.text}</div>
+                        <div class="step-math">\\[ ${step.math} \\]</div>
+                    `;
+                    detailedStepsContent.appendChild(row);
+                });
+
+                // Rendu MathJax initial (caché) -> Puis lancement sequence
+                MathJax.typesetPromise([detailedStepsContent]).then(() => {
+                    launchStepSequence(stepsData);
+                });
+            };
 
             function setupRuleControls() {
                 speechSynthesis.cancel();
@@ -1522,11 +1662,12 @@
                             return;
                         }
 
+                        const frVoice = getFrenchVoice();
                         utterance = new SpeechSynthesisUtterance(textToSpeak);
-                        utterance.lang = 'fr-FR';
-                        utterance.rate = 0.95; 
-                        const btn = this;
-                        btn.textContent = '🛑 Arrêter';
+                        utterance.lang = 'fr-FR'; utterance.rate = 0.95; 
+                        if(frVoice) utterance.voice = frVoice; // Force voice
+
+                        const btn = this; btn.textContent = '🛑 Arrêter';
                         utterance.onend = function() { btn.textContent = '🔊 Voix'; };
                         speechSynthesis.speak(utterance);
                     };
@@ -1535,20 +1676,14 @@
 
             function showSolution() {
                 if (!currentExercise) { alert("Générez un exercice d'abord."); return; }
-                
-                // Stop animation if it's running when we click "Solution" again
                 if (animationReqId) { cancelAnimationFrame(animationReqId); animationReqId = null; }
                 animationContainer.style.display = 'none';
 
-                const { expressionDisplay, factors, complexity, factorizationStep } = currentExercise;
-                
-                // Update Animation Title
-                const animContainer = document.getElementById('animation-container');
-                const animH4 = animContainer.querySelector('h4');
+                const { expressionDisplay, factors, factorizationStep } = currentExercise;
+                const animH4 = document.querySelector('#animation-container h4');
                 animH4.innerHTML = `Animation : La roue sur la courbe \\( y = ${expressionDisplay} \\)`;
 
                 let roots = factors.map(f => f.root);
-                
                 let solutionHTML = `<p>Étude de : \\( E(x) = ${expressionDisplay} \\)</p>`;
 
                 if (factorizationStep) {
@@ -1560,6 +1695,7 @@
                             \\[ ${factorizationStep.step1} \\]
                             \\[ \\mathbf{${factorizationStep.final}} \\]
                         </div>
+                        <button class="detail-btn" onclick="openFactorizationDetails()">🔍 Détails Factorisation</button>
                     `;
                 }
 
@@ -1589,8 +1725,6 @@
                     const plusSignColored = `<span style="color:var(--danger-color);"><b>+</b></span>`;
                     const finalConclusion = `Conclusion : Le <strong>signe</strong> de \\(${f.str}\\) est ${plusSignColored} si \\( x \\) est ${comparisonTextColored} à \\( ${f.rootFraction} \\). ${note}`;
                     const encodedRuleFrench = ruleFrench.replace(/"/g, '&quot;');
-
-                    // --- AJOUT DU BOUTON GRAPHIQUE SPECIFIQUE ICI ---
                     const canvasId = `canvas-factor-${index}`;
                     const containerId = `container-factor-${index}`;
 
@@ -1613,11 +1747,12 @@
                             </div>
 
                             <div class="math-container">
-                                \\[ ${f.str} \\geq 0 \\implies ${f.a}x \\geq ${-f.b} \\]
-                                \\[ x ${inequalitySymbol} ${f.rootFraction} \\quad ${inequalityText} \\]
+                                \\[ ${f.str} \\geq 0 \\implies x ${inequalitySymbol} ${f.rootFraction} \\]
                             </div>
                             
+                            <button class="detail-btn" onclick="openDetailedResolution(${index})">🔍 Détails Pas à Pas</button>
                             <button class="mini-graph-btn" onclick="toggleFactorGraph('${containerId}', ${index})">📈 Voir la Droite</button>
+                            
                             <div id="${containerId}" class="factor-graph-container">
                                 <canvas id="${canvasId}" width="300" height="200"></canvas>
                                 <p style="font-size:0.8em; color:#666;">Rouge : Positif (Dessus) | Bleu : Négatif (Dessous)</p>
@@ -1631,12 +1766,9 @@
                 solutionHTML += `</ul>`;
 
                 const uniqueSortedRoots = [...new Set(roots.map(r => r.toFixed(5)))].map(r => parseFloat(r)).sort((a, b) => a - b);
-                
                 solutionHTML += `<h3>Étape 2 : Tableau de Signe</h3>
                                  <p>Racines ordonnées : ${uniqueSortedRoots.map(r => `\\( ${factors.find(f => Math.abs(f.root - r) < tolerance).rootFraction} \\)`).join(' < ')}.</p>
                                  <div class="math-container">${generateSignTableHTML(factors)}</div>`;
-                
-                // Ajout du bouton pour l'animation finale
                 solutionHTML += `<button class="anim-btn" onclick="toggleAnimation()">🎬 Lancer l'Animation de la Roue</button>`;
 
                 solutionOutput.innerHTML = solutionHTML;
